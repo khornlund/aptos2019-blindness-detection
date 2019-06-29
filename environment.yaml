@@ -19,6 +19,7 @@ dependencies:
   - torchvision
   - cudatoolkit=10.0
   - tensorflow
+  - kaggle
   - pip:
     - tb-nightly  # https://www.endtoend.ai/pytorch-tensorboard
     - future      # until Tensorboard v1.14 released
