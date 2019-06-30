@@ -20,6 +20,9 @@ dependencies:
   - cudatoolkit=10.0
   - tensorflow
   - kaggle
+  - pillow
+  - absl-py
+  - mpmath
   - pip:
     - tb-nightly  # https://www.endtoend.ai/pytorch-tensorboard
     - future      # until Tensorboard v1.14 released

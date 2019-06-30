@@ -1,43 +1,52 @@
-short_name: Mnist_LeNet
+short_name: aptos
 n_gpu: 1
 save_dir: saved/
 seed: 1234
 
 arch:
-  type: MnistModel
+  type: ResNet18MaxAvg
   args:
+    num_classes: 5
+    in_channel: 3
+    dropout: 0.3
+    pretrained: false
     verbose: 2
 
 data_loader:
-  type: MnistDataLoader
+  type: PngDataLoader
   args:
-    batch_size: 128
-    data_dir: data/
-    num_workers: 2
+    batch_size: 64
+    data_dir: data/raw
+    num_workers: 16
     shuffle: true
-    validation_split: 0.1
+    validation_split: 0.2
+    verbose: 2
 
-loss: nll_loss
+loss: ce_loss
 
 lr_scheduler:
-  type: StepLR
+  type: MultiStepLR
   args:
-    gamma: 0.1
-    step_size: 50
+    milestones:
+      - 10
+      - 20
+      - 30
+    gamma: 0.2
 
 metrics:
-- my_metric
-- my_metric2
+- quadratic_weighted_kappa
 
 optimizer:
-  type: Adam
+  type: SGD
   args:
-    lr: 0.001
-    weight_decay: 0
+    lr: 0.1
+    momentum: 0.9
+    nesterov: True
+    weight_decay: 0.0005
 
 training:
-  early_stop: 10
-  epochs: 100
+  early_stop: 200
+  epochs: 200
   monitor: min val_loss
   save_period: 1
   tensorboard: true

@@ -61,7 +61,7 @@ class Trainer(BaseTrainer):
             self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
             self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
-            total_metrics += self._eval_metrics(output, target)
+            total_metrics += self._eval_metrics(output.cpu(), target.cpu())
 
             if batch_idx % self.log_step == 0:
                 self._log_batch(epoch, batch_idx, self.data_loader.batch_size,
@@ -110,7 +110,7 @@ class Trainer(BaseTrainer):
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
                 total_val_loss += loss.item()
-                total_val_metrics += self._eval_metrics(output, target)
+                total_val_metrics += self._eval_metrics(output.cpu(), target.cpu())
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         # add histogram of model parameters to the tensorboard
