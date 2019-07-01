@@ -23,6 +23,7 @@ dependencies:
   - pillow
   - absl-py
   - mpmath
+  - scikit-learn
   - pip:
     - tb-nightly  # https://www.endtoend.ai/pytorch-tensorboard
     - future      # until Tensorboard v1.14 released

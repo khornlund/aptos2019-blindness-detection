@@ -23,7 +23,7 @@ class Trainer(BaseTrainer):
         self.log_step = int(np.sqrt(len(data_loader)))
 
     def _eval_metrics(self, output, target):
-        self.logger.debug(f'Evaluating metrics...')
+        # self.logger.debug(f'Evaluating metrics...')
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
             acc_metrics[i] += metric(output, target)
@@ -51,6 +51,7 @@ class Trainer(BaseTrainer):
         total_loss = 0
         total_metrics = np.zeros(len(self.metrics))
         for batch_idx, (data, target) in enumerate(self.data_loader):
+            # self.logger.debug(f'Processing batch idx {batch_idx}')
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
@@ -67,7 +68,8 @@ class Trainer(BaseTrainer):
             if batch_idx % self.log_step == 0:
                 self._log_batch(epoch, batch_idx, self.data_loader.batch_size,
                                 self.data_loader.n_samples, len(self.data_loader), loss.item())
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                if batch_idx == 1:
+                    self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         log = {
             'loss': total_loss / len(self.data_loader),
@@ -104,6 +106,7 @@ class Trainer(BaseTrainer):
         total_val_metrics = np.zeros(len(self.metrics))
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
+                # self.logger.debug(f'Processing batch idx {batch_idx}')
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)
@@ -113,7 +116,7 @@ class Trainer(BaseTrainer):
                 self.writer.add_scalar('loss', loss.item())
                 total_val_loss += loss.item()
                 total_val_metrics += self._eval_metrics(output.cpu(), target.cpu())
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         return {
             'val_loss': total_val_loss / len(self.valid_data_loader),
