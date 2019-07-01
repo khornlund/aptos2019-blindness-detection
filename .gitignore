@@ -110,3 +110,7 @@ datasets/
 .vscode/
 .idea/
 __MACOSX/
+
+# outputs
+preds.csv
+submission.csv

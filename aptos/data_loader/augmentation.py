@@ -23,11 +23,11 @@ class MediumTransforms(AugmentationBase):
         super().__init__(train)
 
     def build_transforms(self):
-        if not self.train:
-            return T.Compose([
-                T.ToTensor(),
-                T.Normalize(self.MEANS, self.STDS)
-            ])
+        # if not self.train:
+        #     return T.Compose([
+        #         T.ToTensor(),
+        #         T.Normalize(self.MEANS, self.STDS)
+        #     ])
 
         return T.Compose([
             T.RandomAffine(degrees=45, translate=(0.05, 0)),

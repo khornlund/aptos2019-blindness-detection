@@ -5,7 +5,7 @@ import yaml
 import torch
 
 from aptos.main import Runner
-from aptos.utils import CodeExtractor
+from aptos.utils import CodeExtractor, ImportExtractor
 
 
 @click.group()
@@ -17,6 +17,7 @@ def cli():
 def flatten():
     """Producing flat version of package"""
     CodeExtractor().start()
+    ImportExtractor().start()
 
 
 @cli.command()

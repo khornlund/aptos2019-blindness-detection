@@ -7,9 +7,10 @@ from .augmentation import MediumTransforms
 class PngDataLoader(BaseDataLoader):
 
     def __init__(self, data_dir, batch_size, shuffle, validation_split, num_workers,
-                 verbose=0, labels=None, train=True):
+                 verbose=0, train=True):
         self.data_dir = data_dir
         transform = MediumTransforms(train)
         self.dataset = PngDataset(self.data_dir, transform, train)
+        self.ids = self.dataset.df['id_code'].values
         super().__init__(
             self.dataset, batch_size, shuffle, validation_split, num_workers, verbose=verbose)
