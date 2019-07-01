@@ -75,3 +75,8 @@ def verbose_config_name(config):
     loss = config['loss']
     optim = config['optimizer']['type']
     return '-'.join([short_name, arch, loss, optim])
+
+
+if __name__ == '__main__':
+    config = load_config('experiments/config.yml')
+    Runner().train(config, None)

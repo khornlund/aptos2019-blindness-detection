@@ -8,6 +8,14 @@ def ce_loss(output, target):
     return F.cross_entropy(output, target)
 
 
+def mse_loss(output, target):
+    return F.mse_loss(output.squeeze(1), target.to(torch.float))
+
+
+def l1_loss(output, target):
+    return F.l1_loss(output.squeeze(1), target.to(torch.float))
+
+
 class RobustLoss:
 
     def __init__(self):

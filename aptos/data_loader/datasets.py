@@ -24,12 +24,12 @@ class PngDataset(Dataset):
         self.df = pd.read_csv(self.labels_filename)
         self.df['filename'] = self.df['id_code'].apply(lambda x: self.images_dir / f'{x}.png')
 
-    def load_x(self, filename):
+    def load_img(self, filename):
         return self.transform(Image.open(filename))
 
     def __getitem__(self, index):
         filename = self.df.iloc[index]['filename']
-        x = self.load_x(filename)
+        x = self.load_img(filename)
         if not self.train:
             return x
         y = self.df.iloc[index]['diagnosis']

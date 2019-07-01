@@ -105,7 +105,7 @@ class Runner:
 
         # wrangle predictions
         pred_df.set_index('id_code', inplace=True)
-        pred_df['diagnosis'] = pred_df.apply(lambda row: int(row.sum() / ensemble_size), axis=1)
+        pred_df['diagnosis'] = pred_df.apply(lambda row: int(row.mean()), axis=1)
 
         pred_df.to_csv('preds.csv')
         pred_df[['diagnosis']].to_csv('submission.csv')

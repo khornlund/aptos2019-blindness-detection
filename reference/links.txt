@@ -1,1 +1,3 @@
 https://www.ethanrosenthal.com/2018/12/06/spacecutter-ordinal-regression/
+https://www.kaggle.com/c/diabetic-retinopathy-detection/data
+https://jamanetwork.com/journals/jama/fullarticle/2588763

@@ -2,18 +2,12 @@ import torch
 import numpy as np
 
 
-def my_metric(output, target):
-    with torch.no_grad():
-        pred = torch.argmax(output, dim=1)
-        assert pred.shape[0] == len(target)
-        correct = 0
-        correct += torch.sum(pred == target).item()
-    return correct / len(target)
-
-
 def quadratic_weighted_kappa(output, target):
-    preds = output.max(1)[1]  # argmax
-    return _quadratic_weighted_kappa(preds, target, 0, 4)
+    with torch.no_grad():
+        MIN = 0
+        MAX = 4
+        preds = output.squeeze(1).clamp(min=MIN, max=MAX)
+        return _quadratic_weighted_kappa(preds, target, MIN, MAX)
 
 
 def _quadratic_weighted_kappa(rater_a, rater_b, min_rating=None, max_rating=None):
@@ -39,12 +33,7 @@ def _quadratic_weighted_kappa(rater_a, rater_b, min_rating=None, max_rating=None
     rater_a = np.array(rater_a, dtype=int)
     rater_b = np.array(rater_b, dtype=int)
     assert(len(rater_a) == len(rater_b))
-    if min_rating is None:
-        min_rating = min(min(rater_a), min(rater_b))
-    if max_rating is None:
-        max_rating = max(max(rater_a), max(rater_b))
-    conf_mat = confusion_matrix(rater_a, rater_b,
-                                min_rating, max_rating)
+    conf_mat = confusion_matrix(rater_a, rater_b, min_rating, max_rating)
     num_ratings = len(conf_mat)
     num_scored_items = float(len(rater_a))
 
@@ -56,8 +45,7 @@ def _quadratic_weighted_kappa(rater_a, rater_b, min_rating=None, max_rating=None
 
     for i in range(num_ratings):
         for j in range(num_ratings):
-            expected_count = (hist_rater_a[i] * hist_rater_b[j]
-                              / num_scored_items)
+            expected_count = (hist_rater_a[i] * hist_rater_b[j] / num_scored_items)
             d = pow(i - j, 2.0) / pow(num_ratings - 1, 2.0)
             numerator += d * conf_mat[i][j] / num_scored_items
             denominator += d * expected_count / num_scored_items
@@ -70,10 +58,6 @@ def confusion_matrix(rater_a, rater_b, min_rating=None, max_rating=None):
     Returns the confusion matrix between rater's ratings
     """
     assert(len(rater_a) == len(rater_b))
-    if min_rating is None:
-        min_rating = min(rater_a + rater_b)
-    if max_rating is None:
-        max_rating = max(rater_a + rater_b)
     num_ratings = int(max_rating - min_rating + 1)
     conf_mat = [[0 for i in range(num_ratings)]
                 for j in range(num_ratings)]
@@ -86,10 +70,6 @@ def histogram(ratings, min_rating=None, max_rating=None):
     """
     Returns the counts of each type of rating that a rater made
     """
-    if min_rating is None:
-        min_rating = min(ratings)
-    if max_rating is None:
-        max_rating = max(ratings)
     num_ratings = int(max_rating - min_rating + 1)
     hist_ratings = [0 for x in range(num_ratings)]
     for r in ratings:

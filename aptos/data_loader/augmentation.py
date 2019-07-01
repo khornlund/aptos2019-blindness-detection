@@ -19,7 +19,8 @@ class AugmentationBase:
 
 class MediumTransforms(AugmentationBase):
 
-    def __init__(self, train):
+    def __init__(self, train, img_size):
+        self.img_size = img_size
         super().__init__(train)
 
     def build_transforms(self):
@@ -31,7 +32,7 @@ class MediumTransforms(AugmentationBase):
 
         return T.Compose([
             T.RandomAffine(degrees=45, translate=(0.05, 0)),
-            T.RandomResizedCrop(512, scale=(0.8, 1), ratio=(0.9, 1.1)),
+            T.RandomResizedCrop(self.img_size, scale=(0.8, 1), ratio=(0.9, 1.1)),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
             T.ToTensor(),

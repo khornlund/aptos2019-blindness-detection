@@ -20,9 +20,10 @@ class Trainer(BaseTrainer):
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
         self.lr_scheduler = lr_scheduler
-        self.log_step = int(np.sqrt(data_loader.batch_size))
+        self.log_step = int(np.sqrt(len(data_loader)))
 
     def _eval_metrics(self, output, target):
+        self.logger.debug(f'Evaluating metrics...')
         acc_metrics = np.zeros(len(self.metrics))
         for i, metric in enumerate(self.metrics):
             acc_metrics[i] += metric(output, target)
@@ -74,6 +75,7 @@ class Trainer(BaseTrainer):
         }
 
         if self.do_validation:
+            self.logger.debug('Starting validation...')
             val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
 
