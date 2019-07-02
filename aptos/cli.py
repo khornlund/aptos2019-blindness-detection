@@ -72,7 +72,7 @@ def load_config(filename):
 def verbose_config_name(config):
     short_name = config['short_name']
     arch = config['arch']['type']
-    loss = config['loss']
+    loss = config['loss']['type']
     optim = config['optimizer']['type']
     return '-'.join([short_name, arch, loss, optim])
 

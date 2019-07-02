@@ -6,7 +6,9 @@ seed: 1234
 arch:
   type: ResNet18MaxAvg
   args:
+    #depth: 28
     num_classes: 1
+    #widen_factor: 10
     in_channel: 3
     dropout: 0.3
     pretrained: false
@@ -18,23 +20,23 @@ data_loader:
     batch_size: 256
     data_dir: data/raw
     num_workers: 16
-    shuffle: true
     validation_split: 0.2
     img_size: 256
     verbose: 2
 
-loss: l1_loss
+loss:
+  type: RobustLoss
+  args:
+    reduction: mean
 
 lr_scheduler:
   type: MultiStepLR
   args:
     milestones:
-      - 30
       - 60
-      - 90
       - 120
       - 160
-    gamma: 0.1
+    gamma: 0.2
 
 metrics:
 - quadratic_weighted_kappa
@@ -42,7 +44,7 @@ metrics:
 optimizer:
   type: SGD
   args:
-    lr: 0.1
+    lr: 0.01
     momentum: 0.9
     nesterov: True
     weight_decay: 0.0005

@@ -58,7 +58,7 @@ class BaseTrainer:
         self.logger.info('Starting training...')
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
-            self.logger.debug(f'Processing results for epoch {epoch}')
+            # self.logger.debug(f'Processing results for epoch {epoch}')
 
             # save logged informations into log dict
             log = {'epoch': epoch}

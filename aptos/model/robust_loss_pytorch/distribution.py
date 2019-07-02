@@ -133,7 +133,7 @@ class Distribution():
         # approximates the partition function. This was produced by running
         # the script in fit_partition_spline.py
         with util.get_resource_as_file(
-                'data/robust_loss_pytorch/data/partition_spline.npz') as spline_file:
+                'data/robust_loss_pytorch/partition_spline.npz') as spline_file:
             with np.load(spline_file, allow_pickle=False) as f:
                 self._spline_x_scale = torch.tensor(f['x_scale'])
                 self._spline_values = torch.tensor(f['values'])

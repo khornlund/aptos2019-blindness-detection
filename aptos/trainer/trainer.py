@@ -51,11 +51,11 @@ class Trainer(BaseTrainer):
         total_loss = 0
         total_metrics = np.zeros(len(self.metrics))
         for batch_idx, (data, target) in enumerate(self.data_loader):
-            # self.logger.debug(f'Processing batch idx {batch_idx}')
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
             output = self.model(data)
+            # self.logger.debug(f'Output shape: {output.size()}, target shape: {target.size()}')
             loss = self.loss(output, target)
             loss.backward()
             self.optimizer.step()
@@ -66,7 +66,8 @@ class Trainer(BaseTrainer):
             total_metrics += self._eval_metrics(output.cpu(), target.cpu())
 
             if batch_idx % self.log_step == 0:
-                self._log_batch(epoch, batch_idx, self.data_loader.batch_size,
+                batch_size = target.size(0)
+                self._log_batch(epoch, batch_idx, batch_size,
                                 self.data_loader.n_samples, len(self.data_loader), loss.item())
                 if batch_idx == 1:
                     self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))

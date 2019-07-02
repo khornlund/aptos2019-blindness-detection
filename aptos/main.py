@@ -34,11 +34,13 @@ class Runner:
         model, device = self._prepare_device(model, config['n_gpu'])
 
         self.logger.debug('Getting loss and metric function handles')
-        loss = getattr(module_loss, config['loss'])
+        loss = get_instance(module_loss, 'loss', config, device)
         metrics = [getattr(module_metric, met) for met in config['metrics']]
 
         self.logger.debug('Building optimizer and lr scheduler')
-        trainable_params = filter(lambda p: p.requires_grad, model.parameters())
+        trainable_params = filter(
+            lambda p: p.requires_grad,
+            list(model.parameters()) + list(loss.parameters()))
         optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
         lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler',
                                     config, optimizer)
