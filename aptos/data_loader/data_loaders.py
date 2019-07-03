@@ -1,6 +1,6 @@
 import numpy as np
-from torch.utils.data import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler, BatchSampler
+from torch.utils.data import DataLoader, Subset
+from torch.utils.data.sampler import SubsetRandomSampler, BatchSampler, SequentialSampler
 
 from aptos.utils import setup_logger
 
@@ -12,9 +12,10 @@ from .sampler import SamplerFactory
 class PngDataLoader(DataLoader):
 
     def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
-                 train=True, weighted=None, verbose=0):
+                 train=True, alpha=None, verbose=0):
         self.data_dir = data_dir
-        self.logger = setup_logger(self, verbose=verbose)
+        self.verbose = verbose
+        self.logger = setup_logger(self, self.verbose)
 
         transform = MediumTransforms(train, img_size)
         dataset = PngDataset(self.data_dir, transform, train=train)
@@ -24,7 +25,7 @@ class PngDataLoader(DataLoader):
             dataset,
             batch_size,
             validation_split,
-            weighted)
+            alpha)
 
         self.init_kwargs = {
             'dataset': dataset,
@@ -32,12 +33,12 @@ class PngDataLoader(DataLoader):
         }
         super().__init__(batch_sampler=self.sampler, **self.init_kwargs)
 
-    def _setup_samplers(self, dataset, batch_size, validation_split, weighted):
+    def _setup_samplers(self, dataset, batch_size, validation_split, alpha):
         # get sampler & indices to use for validation
         valid_sampler, valid_idx = self._setup_validation(dataset, batch_size, validation_split)
 
         # get sampler & indices to use for training/testing
-        train_sampler, train_idx = self._setup_train(dataset, batch_size, weighted, valid_idx)
+        train_sampler, train_idx = self._setup_train(dataset, batch_size, alpha, valid_idx)
         self.n_samples = len(train_idx)
 
         return (train_sampler, valid_sampler)
@@ -53,16 +54,18 @@ class PngDataLoader(DataLoader):
         self.logger.info(f'Selected {len(valid_idx)}/{len(all_idx)} indices for validation')
         return valid_sampler, valid_idx
 
-    def _setup_train(self, dataset, batch_size, weighted, exclude_idx):
+    def _setup_train(self, dataset, batch_size, alpha, exclude_idx):
         all_idx = np.arange(len(dataset))
         train_idx = [i for i in all_idx if i not in exclude_idx]
 
-        if weighted is None:
+        if alpha is None:
             self.logger.info('No sample weighting selected.')
-            sampler = BatchSampler(SubsetRandomSampler(train_idx), batch_size, False)
+            subset = Subset(dataset, train_idx)
+            sampler = BatchSampler(SequentialSampler(subset), batch_size, False)
             return sampler, train_idx
 
-        sampler = SamplerFactory.get(dataset.df, train_idx, batch_size, weighted)
+        factory = SamplerFactory(self.verbose)
+        sampler = factory.get(dataset.df, train_idx, batch_size, alpha)
         return sampler, train_idx
 
     def split_validation(self):

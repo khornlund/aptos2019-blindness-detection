@@ -10,7 +10,7 @@ class AugmentationBase:
         self.train = train
         self.transform = self.build_transforms()
 
-    def build_transforms(self, images):
+    def build_transforms(self):
         raise NotImplementedError('Not implemented!')
 
     def __call__(self, images):

@@ -67,9 +67,8 @@ class Trainer(BaseTrainer):
 
             if batch_idx % self.log_step == 0:
                 batch_size = target.size(0)
-                self._log_batch(epoch, batch_idx, batch_size,
-                                self.data_loader.n_samples, len(self.data_loader), loss.item())
-                if batch_idx == 1:
+                self._log_batch(epoch, batch_idx, batch_size, len(self.data_loader), loss.item())
+                if epoch == 1 and batch_idx == self.log_step:  # only do this once
                     self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         log = {
@@ -87,9 +86,10 @@ class Trainer(BaseTrainer):
 
         return log
 
-    def _log_batch(self, epoch, batch_idx, batch_size, n_samples, len_data, loss):
+    def _log_batch(self, epoch, batch_idx, batch_size, n_batches, loss):
         n_complete = batch_idx * batch_size
-        percent = 100.0 * batch_idx / len_data
+        n_samples = batch_size * n_batches
+        percent = 100.0 * batch_idx / n_batches
         msg = f'Train Epoch: {epoch} [{n_complete}/{n_samples} ({percent:.0f}%)] Loss: {loss:.6f}'
         self.logger.debug(msg)
 

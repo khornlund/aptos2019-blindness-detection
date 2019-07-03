@@ -21,8 +21,12 @@ class PngDataset(Dataset):
             self.images_dir = Path(data_dir) / 'test_images'
             self.labels_filename = Path(data_dir) / self.test_csv
 
-        self.df = pd.read_csv(self.labels_filename)
-        self.df['filename'] = self.df['id_code'].apply(lambda x: self.images_dir / f'{x}.png')
+        self._df = pd.read_csv(self.labels_filename)
+        self._df['filename'] = self._df['id_code'].apply(lambda x: self.images_dir / f'{x}.png')
+
+    @property
+    def df(self):
+        return self._df
 
     def load_img(self, filename):
         return self.transform(Image.open(filename))

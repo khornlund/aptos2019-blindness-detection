@@ -4,13 +4,40 @@ import numpy as np
 import pandas as pd
 from torch.utils.data.sampler import BatchSampler
 
+from aptos.utils import setup_logger
+
 
 class SamplerFactory:
+    """
+    Factory class to create a `ClassWeightedBatchSampler`.
+    """
 
-    @classmethod
-    def get(cls, df, candidate_idx, batch_size, alpha):
-        assert alpha >= 0 and alpha <= 1, f'invalid alpha {alpha}, must be 0 <= alpha <= 1'
+    def __init__(self, verbose=0):
+        self.logger = setup_logger(self, verbose)
 
+    def get(self, df, candidate_idx, batch_size, alpha):
+        """
+        Parameters
+        ----------
+        df : `pandas.DataFrame`
+            A dataframe containing the contents of `train.csv`. Must have `diagnosis` column.
+
+        candidate_idx : array-like of ints
+            List of candidate indices to use. May not contain all the indices of `df` if some have
+            been reserved for validation.
+
+        batch_size : int
+            The batch size to use.
+
+        alpha : numeric in range [0, 1]
+            Weighting term used to determine weights of each class in each batch.
+            When `alpha` == 0, the batch class distribution will approximate the training population
+            class distribution.
+            When `alpha` == 1, the batch class distribution will approximate a uniform distribution,
+            with equal number of samples from each class.
+            See :method:`balance_weights` for implementation details.
+        """
+        self.logger.info('Creating `ClassWeightedBatchSampler`...')
         n_classes = pd.unique(df['diagnosis']).shape[0]
 
         class_idxs = []
@@ -20,77 +47,78 @@ class SamplerFactory:
 
         n_samples = len(candidate_idx)
         class_sizes = np.asarray([len(idxs) for idxs in class_idxs])
-        uniform_weights = np.repeat(1 / n_classes, n_classes)
         original_weights = np.asarray([size / n_samples for size in class_sizes])
+        uniform_weights = np.repeat(1 / n_classes, n_classes)
 
-        weights = cls.balance_weights(original_weights, uniform_weights, alpha)
-        n_batches = cls.n_batches(weights, class_sizes, batch_size)
+        self.logger.info(f'Sample population class examples: {class_sizes}')
+        self.logger.info(f'Sample population class distribution: {original_weights}')
 
-        return ClassWeightedBatchSampler(weights, class_idxs, batch_size, n_batches)
+        weights = self.balance_weights(uniform_weights, original_weights, alpha)
+        class_samples_per_batch, n_batches = self.batch_statistics(weights, class_sizes, batch_size)
 
-    @classmethod
-    def balance_weights(cls, weight_a, weight_b, alpha):
+        return ClassWeightedBatchSampler(class_samples_per_batch, class_idxs, n_batches)
+
+    def balance_weights(self, weight_a, weight_b, alpha):
+        assert alpha >= 0 and alpha <= 1, f'invalid alpha {alpha}, must be 0 <= alpha <= 1'
         beta = 1 - alpha
-        return (alpha * weight_a) + (beta * weight_b)
+        weights = (alpha * weight_a) + (beta * weight_b)
+        self.logger.info(f'Selected batch class distribution {weights} using alpha={alpha}')
+        return weights
 
-    @classmethod
-    def n_batches(cls, weights, class_sizes, batch_size):
-        proportions_per_batch = (weights * batch_size) / class_sizes
-        n_batches = math.ceil(1 / min(proportions_per_batch))
-        return n_batches
+    def batch_statistics(self, weights, class_sizes, batch_size):
+        """
+        Calculates the number of samples of each class to include in each batch, and the number
+        of batches required to use all the data in an epoch.
+        """
+        class_samples_per_batch = (weights * batch_size).astype(int)
+
+        # cleanup rounding edge-cases
+        remainder = batch_size - class_samples_per_batch.sum()
+        largest_class = np.argmax(class_samples_per_batch)
+        class_samples_per_batch[largest_class] += remainder
+
+        assert class_samples_per_batch.sum() == batch_size
+
+        proportions_per_batch = class_samples_per_batch / class_sizes
+        n_batches = math.ceil(1 / proportions_per_batch.min())
+
+        self.logger.info(f'Expecting {class_samples_per_batch} samples of each class per batch, '
+                         f'over {n_batches} batches of size {batch_size}')
+        return class_samples_per_batch, n_batches
 
 
 class ClassWeightedBatchSampler(BatchSampler):
     """
     Ensures each batch contains a given class distribution.
 
+    The lists of indices for each class are shuffled at the start of each call to `__iter__`.
+
     Parameters
     ----------
-    class_batch_sizes : array-like of int
-        The number of indices to select of each class.
+    class_samples_per_batch : `numpy.array(int)`
+        The number of samples of each class to include in each batch.
 
     class_idxs : 2D list of ints
         The indices that correspond to samples of each class.
 
-    Example
-    -------
-    .. code::
-
-        class_batch_sizes = [2, 3, 4]
-        class_idxs = [
-            [0, 1, 2, 3, 4],
-            [5, 6, 7, 8, 9],
-            [10, 11, 12, 13, 14]
-        ]
-
-        sampler = ClassWeightedSampler(class_batch_sizes, class_idxs)
-        idxs = list([idx for idx in sampler])
-
-        # idxs will contain 2 of [0, 1, 2, 3, 4],
-        #                   3 of [5, 6, 7, 8, 9], and
-        #                   4 of [10, 11, 12, 13, 14]
-        # in a random order.
+    n_batches : int
+        The number of batches to yield.
     """
 
-    def __init__(self, class_weights, class_idxs, batch_size, n_batches):
-        self.class_weights = class_weights
+    def __init__(self, class_samples_per_batch, class_idxs, n_batches):
+        self.class_samples_per_batch = class_samples_per_batch
         self.class_idxs = [CircularList(idx) for idx in class_idxs]
-        self.batch_size = batch_size
         self.n_batches = n_batches
 
-        self.n_classes = len(self.class_weights)
-        self.class_sizes = np.asarray([batch_size * w for w in self.class_weights], dtype=int)
+        self.n_classes = len(self.class_samples_per_batch)
+        self.batch_size = self.class_samples_per_batch.sum()
 
-        # handle rounding edge cases
-        remainder = self.batch_size - self.class_sizes.sum()
-        self.class_sizes[0] += remainder
-
-        assert isinstance(self.batch_size, int)
+        assert len(self.class_samples_per_batch) == len(self.class_idxs)
         assert isinstance(self.n_batches, int)
 
     def _get_batch(self, start_idxs):
         selected = []
-        for c, size in enumerate(self.class_sizes):
+        for c, size in enumerate(self.class_samples_per_batch):
             selected.extend(self.class_idxs[c][start_idxs[c]:start_idxs[c] + size])
         np.random.shuffle(selected)
         return selected
@@ -100,7 +128,7 @@ class ClassWeightedBatchSampler(BatchSampler):
         start_idxs = np.zeros(self.n_classes, dtype=int)
         for bidx in range(self.n_batches):
             yield self._get_batch(start_idxs)
-            start_idxs += self.class_sizes
+            start_idxs += self.class_samples_per_batch
 
     def __len__(self):
         return self.n_batches

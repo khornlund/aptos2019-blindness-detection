@@ -68,9 +68,9 @@ class Runner:
         data_loader = getattr(module_data, config['data_loader']['type'])(
             config['testing']['data_dir'],
             batch_size=config['testing']['batch_size'],
-            shuffle=False,
             validation_split=0.0,
-            train=False,
+            train=True,
+            img_size=config['testing']['img_size'],
             num_workers=config['testing']['num_workers'],
             verbose=config['testing']['verbose']
         )
@@ -88,18 +88,17 @@ class Runner:
         model.eval()
 
         ensemble_size = config['testing']['ensemble_size']
-
         pred_df = pd.DataFrame({'id_code': data_loader.ids})
 
-        self.logger.debug('Starting...')
+        self.logger.debug(f'Generating {ensemble_size} predictions for {pred_df.shape[0]} samples')
         with torch.no_grad():
             for e in range(ensemble_size):  # perform N sets of predictions and average results
                 preds = torch.zeros(len(data_loader.dataset))
-                for i, data in enumerate(tqdm(data_loader)):
+                for i, (data, _) in enumerate(tqdm(data_loader)):
                     data = data.to(device)
                     output = model(data).cpu()
                     batch_size = output.shape[0]
-                    batch_preds = output.max(1)[1]  # argmax
+                    batch_preds = output.squeeze(1).clamp(min=0, max=4)
                     preds[i * batch_size:(i + 1) * batch_size] = batch_preds
 
                 # add column for this iteration of predictions
@@ -108,8 +107,17 @@ class Runner:
         # wrangle predictions
         pred_df.set_index('id_code', inplace=True)
         pred_df['diagnosis'] = pred_df.apply(lambda row: int(row.mean()), axis=1)
+        self.logger.info(data_loader.dataset.df.head(5))
+        pred_df['target'] = data_loader.dataset.df.set_index('id_code')['diagnosis']
+        self.logger.info(pred_df.head(5))
 
-        pred_df.to_csv('preds.csv')
+        kappa = module_metric._quadratic_weighted_kappa(
+            pred_df['diagnosis'].values,
+            pred_df['target'].values,
+            5)
+        self.logger.info(f'Kappa: {kappa}')
+
+        # pred_df.to_csv('preds.csv')
         pred_df[['diagnosis']].to_csv('submission.csv')
         self.logger.info('Finished saving predictions!')
 
