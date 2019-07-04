@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
+from efficientnet_pytorch import EfficientNet
 
 from aptos.base import BaseModel
 
@@ -71,6 +72,21 @@ class ResNet18MaxAvg(BaseModel):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
+
+
+class EffNet(BaseModel):
+    """
+    https://github.com/lukemelas/EfficientNet-PyTorch
+    """
+    def __init__(self, num_classes, model='b2', verbose=0):
+        super().__init__(verbose)
+        self.model = EfficientNet.from_pretrained(
+            f'efficientnet-{model}',
+            num_classes=num_classes)
+        self.logger.info(f'<init>: \n{self}')
+
+    def forward(self, x):
+        return self.model(x)
 
 
 # -- Wide ResNet --

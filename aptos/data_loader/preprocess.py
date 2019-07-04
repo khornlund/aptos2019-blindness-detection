@@ -7,8 +7,7 @@ from aptos.utils import setup_logger
 
 class ImgProcessor:
 
-    def __init__(self, data_dir, crop_tol=12, radius_size=300, verbose=0):
-        self.data_dir = data_dir
+    def __init__(self, crop_tol=12, radius_size=300, verbose=0):
         self.logger = setup_logger(self, verbose)
         self.crop_tol = crop_tol
         self.radius_size = radius_size
@@ -20,7 +19,7 @@ class ImgProcessor:
             self.crop_circle,
         ])
 
-    def process(self, filename):
+    def __call__(self, filename):
         return self.sequential(filename)
 
     def read_png(self, filename):
@@ -52,4 +51,4 @@ class ImgProcessor:
             int(self.radius_size * 0.92),
             (255, 255, 255),
             thickness=-1)
-        return img * b + 128 * (1 - b)
+        return img * b  # + 128 * (1 - b)

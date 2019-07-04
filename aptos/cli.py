@@ -53,6 +53,21 @@ def train(config_filename, resume, device):
               help='path to latest checkpoint (default: None)')
 @click.option('-d', '--device', default=None, type=str,
               help='indices of GPUs to enable (default: all)')
+def test(config_filename, model_checkpoint, device):
+    config = load_config(config_filename)
+    if device:
+        os.environ["CUDA_VISIBLE_DEVICES"] = device
+
+    Runner().test(config, model_checkpoint)
+
+
+@cli.command()
+@click.option('-c', '--config-filename', default=None, type=str,
+              help='config file path (default: None)')
+@click.option('-m', '--model-checkpoint', default=None, type=str,
+              help='path to latest checkpoint (default: None)')
+@click.option('-d', '--device', default=None, type=str,
+              help='indices of GPUs to enable (default: all)')
 def predict(config_filename, model_checkpoint, device):
     config = load_config(config_filename)
     if device:

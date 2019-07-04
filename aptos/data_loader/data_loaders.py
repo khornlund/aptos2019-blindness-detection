@@ -4,21 +4,17 @@ from torch.utils.data.sampler import SubsetRandomSampler, BatchSampler, Sequenti
 
 from aptos.utils import setup_logger
 
-from .datasets import PngDataset
-from .augmentation import MediumTransforms
+from .datasets import PngDataset, NpyDataset
+from .augmentation import InplacePngTransforms, MediumNpyTransforms
 from .sampler import SamplerFactory
 
 
-class PngDataLoader(DataLoader):
+class DataLoaderBase(DataLoader):
 
-    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+    def __init__(self, dataset, batch_size, validation_split, num_workers,
                  train=True, alpha=None, verbose=0):
-        self.data_dir = data_dir
         self.verbose = verbose
         self.logger = setup_logger(self, self.verbose)
-
-        transform = MediumTransforms(train, img_size)
-        dataset = PngDataset(self.data_dir, transform, train=train)
         self.ids = dataset.df['id_code'].values
 
         self.sampler, self.valid_sampler = self._setup_samplers(
@@ -73,3 +69,25 @@ class PngDataLoader(DataLoader):
             return None
         else:
             return DataLoader(batch_sampler=self.valid_sampler, **self.init_kwargs)
+
+
+class PngDataLoader(DataLoaderBase):
+
+    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+                 train=True, alpha=None, verbose=0):
+        transform = InplacePngTransforms(train, img_size)
+        dataset = PngDataset(data_dir, transform, train=train)
+
+        super().__init__(dataset, batch_size, validation_split, num_workers,
+                         train=train, alpha=alpha, verbose=verbose)
+
+
+class NpyDataLoader(DataLoaderBase):
+
+    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+                 train=True, alpha=None, verbose=0):
+        transform = MediumNpyTransforms(train, img_size)
+        dataset = NpyDataset(data_dir, transform, train=train)
+
+        super().__init__(dataset, batch_size, validation_split, num_workers,
+                         train=train, alpha=alpha, verbose=verbose)

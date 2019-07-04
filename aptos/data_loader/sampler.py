@@ -38,7 +38,12 @@ class SamplerFactory:
             See :method:`balance_weights` for implementation details.
         """
         self.logger.info('Creating `ClassWeightedBatchSampler`...')
-        n_classes = pd.unique(df['diagnosis']).shape[0]
+        try:
+            n_classes = pd.unique(df['diagnosis']).shape[0]
+        except KeyError as ex:
+            msg = f'Caught KeyError reading {df.head()}: {ex}'
+            self.logger.critical(msg)
+            raise Exception(msg)
 
         class_idxs = []
         for c in range(n_classes):
@@ -62,7 +67,7 @@ class SamplerFactory:
         assert alpha >= 0 and alpha <= 1, f'invalid alpha {alpha}, must be 0 <= alpha <= 1'
         beta = 1 - alpha
         weights = (alpha * weight_a) + (beta * weight_b)
-        self.logger.info(f'Selected batch class distribution {weights} using alpha={alpha}')
+        self.logger.info(f'Target batch class distribution {weights} using alpha={alpha}')
         return weights
 
     def batch_statistics(self, weights, class_sizes, batch_size):
@@ -70,7 +75,7 @@ class SamplerFactory:
         Calculates the number of samples of each class to include in each batch, and the number
         of batches required to use all the data in an epoch.
         """
-        class_samples_per_batch = (weights * batch_size).astype(int)
+        class_samples_per_batch = np.round((weights * batch_size)).astype(int)
 
         # cleanup rounding edge-cases
         remainder = batch_size - class_samples_per_batch.sum()
@@ -80,6 +85,7 @@ class SamplerFactory:
         assert class_samples_per_batch.sum() == batch_size
 
         proportions_per_batch = class_samples_per_batch / class_sizes
+        self.logger.info(f'Actual batch class distribution {proportions_per_batch}')
         n_batches = math.ceil(1 / proportions_per_batch.min())
 
         self.logger.info(f'Expecting {class_samples_per_batch} samples of each class per batch, '

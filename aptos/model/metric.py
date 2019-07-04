@@ -2,6 +2,8 @@ import torch
 import numpy as np
 
 
+# -- const --
+
 def distance_matrix(size):
     mx = np.zeros((size, size))
     values = np.linspace(0, 1, size) ** 2
@@ -17,6 +19,8 @@ N_LABELS = MAX_LABEL - MIN_LABEL + 1
 DISTANCE_MATRIX = distance_matrix(N_LABELS)
 
 
+# -- metrics --
+
 def quadratic_weighted_kappa(output, target):
     with torch.no_grad():
         preds = output.squeeze(1).clamp(min=MIN_LABEL, max=MAX_LABEL).round()
@@ -25,6 +29,14 @@ def quadratic_weighted_kappa(output, target):
             target.numpy(),
             N_LABELS)
 
+
+def accuracy(output, target):
+    with torch.no_grad():
+        correct = (output.squeeze(1).round() == target.float()).type(torch.FloatTensor)
+        return correct.mean()
+
+
+# -- util --
 
 def _quadratic_weighted_kappa(rater_a, rater_b, n_values):
     rater_a = np.array(rater_a, dtype=int)

@@ -30,4 +30,5 @@ dependencies:
     - future      # until Tensorboard v1.14 released
     - tqdm
     - torch-dct
+    - efficientnet-pytorch
     - -e .
