@@ -5,7 +5,7 @@ import logging.config
 from .saving import log_path
 
 
-def setup_logging(run_config, log_config='logging.yaml', default_level=logging.INFO):
+def setup_logging(run_config, log_config='logging.yml', default_level=logging.INFO):
     """
     Setup logging configuration
     """

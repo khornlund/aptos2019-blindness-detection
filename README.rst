@@ -44,7 +44,7 @@ Folder Structure
   │        ├── visualization.py - class for Tensorboard visualization support
   │        └── saving.py - manages pathing for saving models + logs
   │
-  ├── logging.yaml - logging configuration
+  ├── logging.yml - logging configuration
   │
   ├── data/ - directory for storing input data
   │
@@ -60,7 +60,7 @@ Usage
 
 .. code-block:: bash
 
-  $ conda env create --file environment.yaml
+  $ conda env create --file environment.yml
   $ conda activate aptos
 
 You can run the tests using:
@@ -69,11 +69,14 @@ You can run the tests using:
 
   $ pytest tests
 
-And start training using:
+See `notebooks/preprocess.ipynb` to preprocess the data for training.
+
+To start training, run:
 
 .. code-block:: bash
 
-  $ aptos train -c experiments/config.yaml
+  $ aptos train -c experiments/config.yml
+
 
 
 Using Multiple GPU
@@ -84,7 +87,7 @@ Specify indices of available GPUs by cuda environmental variable.
 
 .. code-block:: shell
 
-  aptos train --device 2,3 -c experiments/config.yaml
+  aptos train --device 2,3 -c experiments/config.yml
 
 
 Tensorboard Visualization
