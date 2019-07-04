@@ -23,12 +23,14 @@ class Trainer(BaseTrainer):
         self.log_step = int(np.sqrt(len(data_loader)))
 
     def _eval_metrics(self, output, target):
-        # self.logger.debug(f'Evaluating metrics...')
-        acc_metrics = np.zeros(len(self.metrics))
-        for i, metric in enumerate(self.metrics):
-            acc_metrics[i] += metric(output, target)
-            self.writer.add_scalar(f'{metric.__name__}', acc_metrics[i])
-        return acc_metrics
+        with torch.no_grad():
+            acc_metrics = []
+            for i, metric in enumerate(self.metrics):
+                score = metric(output, target)
+                acc_metrics.append(score)
+                if not hasattr(score, '__len__'):  # hacky way to avoid logging conf matrix
+                    self.writer.add_scalar(f'{metric.__name__}', acc_metrics[-1])
+            return acc_metrics
 
     def _train_epoch(self, epoch):
         """
@@ -49,31 +51,34 @@ class Trainer(BaseTrainer):
         self.model.train()
 
         total_loss = 0
-        total_metrics = np.zeros(len(self.metrics))
-        for batch_idx, (data, target) in enumerate(self.data_loader):
+        outputs = np.zeros(self.data_loader.n_samples)
+        targets = np.zeros(self.data_loader.n_samples)
+        for bidx, (data, target) in enumerate(self.data_loader):
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
             output = self.model(data)
-            # self.logger.debug(f'Output shape: {output.size()}, target shape: {target.size()}')
             loss = self.loss(output, target)
             loss.backward()
             self.optimizer.step()
 
-            self.writer.set_step((epoch - 1) * len(self.data_loader) + batch_idx)
+            self.writer.set_step((epoch - 1) * len(self.data_loader) + bidx)
             self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
-            total_metrics += self._eval_metrics(output.cpu(), target.cpu())
 
-            if batch_idx % self.log_step == 0:
-                batch_size = target.size(0)
-                self._log_batch(epoch, batch_idx, batch_size, len(self.data_loader), loss.item())
-                if epoch == 1 and batch_idx == self.log_step:  # only do this once
+            bs = target.size(0)
+            outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().squeeze(1).detach().numpy()
+            targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
+
+            if bidx % self.log_step == 0:
+                self._log_batch(epoch, bidx, bs, len(self.data_loader), loss.item())
+                if epoch == 1 and bidx == self.log_step:  # only log images once
                     self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
+        total_metrics = self._eval_metrics(outputs, targets)
         log = {
             'loss': total_loss / len(self.data_loader),
-            'metrics': (total_metrics / len(self.data_loader)).tolist()
+            'metrics': total_metrics
         }
 
         if self.do_validation:
@@ -104,22 +109,25 @@ class Trainer(BaseTrainer):
         """
         self.model.eval()
         total_val_loss = 0
-        total_val_metrics = np.zeros(len(self.metrics))
+        outputs = np.zeros(self.data_loader.n_samples)
+        targets = np.zeros(self.data_loader.n_samples)
         with torch.no_grad():
-            for batch_idx, (data, target) in enumerate(self.valid_data_loader):
-                # self.logger.debug(f'Processing batch idx {batch_idx}')
+            for bidx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)
                 loss = self.loss(output, target)
 
-                self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
+                self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + bidx, 'valid')
                 self.writer.add_scalar('loss', loss.item())
                 total_val_loss += loss.item()
-                total_val_metrics += self._eval_metrics(output.cpu(), target.cpu())
-                # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
+                bs = target.size(0)
+                outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().squeeze(1).detach().numpy()
+                targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
+
+        total_val_metrics = self._eval_metrics(outputs, targets)
         return {
             'val_loss': total_val_loss / len(self.valid_data_loader),
-            'val_metrics': (total_val_metrics / len(self.valid_data_loader)).tolist()
+            'val_metrics': total_val_metrics
         }

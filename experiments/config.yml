@@ -13,7 +13,7 @@ arch:
     #in_channel: 3
     #dropout: 0.3
     #pretrained: true
-    verbose: 2
+    verbose: 0
 
 data_loader:
   type: NpyDataLoader
@@ -21,7 +21,7 @@ data_loader:
     batch_size: 32
     data_dir: data/preprocessed
     num_workers: 16
-    validation_split: 0.10
+    validation_split: 0.20
     img_size: 260
     train: true
     alpha: 0.5
@@ -43,7 +43,18 @@ lr_scheduler:
 
 metrics:
 - quadratic_weighted_kappa
+- conf_matrix
 - accuracy
+# - precision_0
+# - precision_1
+# - precision_2
+# - precision_3
+# - precision_4
+# - recall_0
+# - recall_1
+# - recall_2
+# - recall_3
+# - recall_4
 
 optimizer:
   type: Adam

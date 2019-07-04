@@ -84,9 +84,11 @@ class SamplerFactory:
 
         assert class_samples_per_batch.sum() == batch_size
 
-        proportions_per_batch = class_samples_per_batch / class_sizes
-        self.logger.info(f'Actual batch class distribution {proportions_per_batch}')
-        n_batches = math.ceil(1 / proportions_per_batch.min())
+        proportions_of_class_per_batch = class_samples_per_batch / batch_size
+        self.logger.info(f'Actual batch class distribution {proportions_of_class_per_batch}')
+
+        proportions_of_samples_per_batch = class_samples_per_batch / class_sizes
+        n_batches = math.ceil(1 / proportions_of_samples_per_batch.min())
 
         self.logger.info(f'Expecting {class_samples_per_batch} samples of each class per batch, '
                          f'over {n_batches} batches of size {batch_size}')

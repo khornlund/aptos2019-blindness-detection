@@ -34,8 +34,8 @@ class DataLoaderBase(DataLoader):
         valid_sampler, valid_idx = self._setup_validation(dataset, batch_size, validation_split)
 
         # get sampler & indices to use for training/testing
-        train_sampler, train_idx = self._setup_train(dataset, batch_size, alpha, valid_idx)
-        self.n_samples = len(train_idx)
+        train_sampler, n_samples = self._setup_train(dataset, batch_size, alpha, valid_idx)
+        self.n_samples = n_samples
 
         return (train_sampler, valid_sampler)
 
@@ -48,6 +48,8 @@ class DataLoaderBase(DataLoader):
         valid_idx = np.random.choice(all_idx, size=len_valid, replace=False)
         valid_sampler = BatchSampler(SubsetRandomSampler(valid_idx), batch_size, False)
         self.logger.info(f'Selected {len(valid_idx)}/{len(all_idx)} indices for validation')
+        valid_targets = dataset.df.iloc[valid_idx].groupby('diagnosis').count()
+        self.logger.info(f'Validation class distribution: {valid_targets}')
         return valid_sampler, valid_idx
 
     def _setup_train(self, dataset, batch_size, alpha, exclude_idx):
@@ -58,11 +60,11 @@ class DataLoaderBase(DataLoader):
             self.logger.info('No sample weighting selected.')
             subset = Subset(dataset, train_idx)
             sampler = BatchSampler(SequentialSampler(subset), batch_size, False)
-            return sampler, train_idx
+            return sampler, len(train_idx)
 
         factory = SamplerFactory(self.verbose)
         sampler = factory.get(dataset.df, train_idx, batch_size, alpha)
-        return sampler, train_idx
+        return sampler, len(sampler) * batch_size
 
     def split_validation(self):
         if self.valid_sampler is None:

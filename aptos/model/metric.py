@@ -1,70 +1,84 @@
-import torch
 import numpy as np
-
+import pandas as pd
+from sklearn.metrics import cohen_kappa_score, confusion_matrix
 
 # -- const --
 
-def distance_matrix(size):
-    mx = np.zeros((size, size))
-    values = np.linspace(0, 1, size) ** 2
-    for i in range(size - 1):
-        mx[i, i:] = values[:size - i]
-        mx[i:, i] = values[:size - i]
-    return mx
-
-
 MIN_LABEL = 0
 MAX_LABEL = 4
-N_LABELS = MAX_LABEL - MIN_LABEL + 1
-DISTANCE_MATRIX = distance_matrix(N_LABELS)
+LABELS = list(range(MIN_LABEL, MAX_LABEL + 1))
+N_LABELS = len(LABELS)
 
 
 # -- metrics --
 
 def quadratic_weighted_kappa(output, target):
-    with torch.no_grad():
-        preds = output.squeeze(1).clamp(min=MIN_LABEL, max=MAX_LABEL).round()
-        return _quadratic_weighted_kappa(
-            preds.numpy(),
-            target.numpy(),
-            N_LABELS)
+    pred = np.round(np.clip(output, MIN_LABEL, MAX_LABEL))
+    return cohen_kappa_score(pred, target, labels=LABELS, weights='quadratic')
+
+
+def conf_matrix(output, target):
+    pred = np.round(np.clip(output, MIN_LABEL, MAX_LABEL))
+    cm = confusion_matrix(target, pred, labels=LABELS)
+    df = pd.DataFrame(cm)
+    return pd.concat([df], keys=['label'], names=['pred'])
 
 
 def accuracy(output, target):
-    with torch.no_grad():
-        correct = (output.squeeze(1).round() == target.float()).type(torch.FloatTensor)
-        return correct.mean()
+    correct = (np.round(output) == target)
+    return correct.mean()
+
+
+def precision_0(output, target):
+    return precision(output, target, 0)
+
+
+def precision_1(output, target):
+    return precision(output, target, 1)
+
+
+def precision_2(output, target):
+    return precision(output, target, 2)
+
+
+def precision_3(output, target):
+    return precision(output, target, 3)
+
+
+def precision_4(output, target):
+    return precision(output, target, 4)
+
+
+def recall_0(output, target):
+    return recall(output, target, 0)
+
+
+def recall_1(output, target):
+    return recall(output, target, 1)
+
+
+def recall_2(output, target):
+    return recall(output, target, 2)
+
+
+def recall_3(output, target):
+    return recall(output, target, 3)
+
+
+def recall_4(output, target):
+    return recall(output, target, 4)
 
 
 # -- util --
 
-def _quadratic_weighted_kappa(rater_a, rater_b, n_values):
-    rater_a = np.array(rater_a, dtype=int)
-    rater_b = np.array(rater_b, dtype=int)
-    assert(len(rater_a) == len(rater_b))
-    conf_mat = confusion_matrix(rater_a, rater_b, n_values)
-    num_scored_items = rater_a.shape[0]
 
-    # get numerator matrix
-    numerators = DISTANCE_MATRIX * conf_mat
-
-    # get denominator matrix
-    expected_counts = np.zeros((n_values, n_values))
-    hist_rater_a = np.bincount(rater_a, minlength=n_values)
-    hist_rater_b = np.bincount(rater_b, minlength=n_values)
-    for j in range(n_values):
-        expected_counts[:, j] = hist_rater_a * hist_rater_b[j]
-    denominators = DISTANCE_MATRIX * expected_counts
-
-    return 1.0 - (numerators.sum() / denominators.sum()) * num_scored_items
+def precision(output, target, c):
+    output_c = np.round(output) == c
+    target_c = target == c
+    return (output_c * target_c).sum() / output_c.sum()
 
 
-def confusion_matrix(rater_a, rater_b, n_values):
-    """
-    Returns the confusion matrix between rater's ratings
-    """
-    assert(len(rater_a) == len(rater_b))
-    conf_mat = np.zeros((n_values, n_values))
-    for i, a in enumerate(rater_a):
-        conf_mat[a, rater_b[i]] += 1
-    return conf_mat
+def recall(output, target, c):
+    output_c = np.round(output) == c
+    target_c = target == c
+    return (output_c * target_c).sum() / target_c.sum()

@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 from sklearn.metrics import cohen_kappa_score
 
+from aptos.model.metric import precision_0, recall_0
+
 
 def quadratic_weighted_kappa(rater_a, rater_b, min_rating=None, max_rating=None):
     """
@@ -163,3 +165,45 @@ def test_histogram(ratings):
     assert len(original) == len(custom)
     for i in range(len(original)):
         assert original[i] == custom[i]
+
+
+@pytest.mark.parametrize('output, target, expected', [
+    (
+        np.array([0, 1, 0, 2, 0]),
+        np.array([0, 0, 1, 2, 0]),
+        2 / 3
+    ),
+    (
+        np.array([0, 0, 0, 2, 0]),
+        np.array([0, 0, 1, 2, 0]),
+        3 / 4
+    ),
+    (
+        np.array([1, 1, 0, 2, 4]),
+        np.array([0, 0, 1, 2, 0]),
+        0
+    ),
+])
+def test_precision_0(output, target, expected):
+    assert precision_0(output, target) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize('output, target, expected', [
+    (
+        np.array([0, 1, 0, 2, 0]),
+        np.array([0, 0, 1, 2, 0]),
+        2 / 3
+    ),
+    (
+        np.array([0, 0, 0, 2, 0]),
+        np.array([0, 0, 1, 2, 0]),
+        1
+    ),
+    (
+        np.array([1, 1, 0, 2, 4]),
+        np.array([0, 0, 1, 2, 0]),
+        0
+    ),
+])
+def test_recall_0(output, target, expected):
+    assert recall_0(output, target) == pytest.approx(expected)
