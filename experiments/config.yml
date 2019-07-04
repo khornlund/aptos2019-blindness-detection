@@ -45,16 +45,6 @@ metrics:
 - quadratic_weighted_kappa
 - conf_matrix
 - accuracy
-# - precision_0
-# - precision_1
-# - precision_2
-# - precision_3
-# - precision_4
-# - recall_0
-# - recall_1
-# - recall_2
-# - recall_3
-# - recall_4
 
 optimizer:
   type: Adam
@@ -74,7 +64,7 @@ training:
 
 testing:
   data_dir: data/raw
-  ensemble_size: 10
+  ensemble_size: 5
   batch_size: 64
   img_size: 256
   num_workers: 16

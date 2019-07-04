@@ -13,6 +13,7 @@ import aptos.model.model as module_arch
 from aptos.trainer import Trainer
 from aptos.data_loader import PngDataLoader
 from aptos.utils import setup_logger, setup_logging
+from aptos.model.metric import quadratic_weighted_kappa, conf_matrix
 
 
 def get_instance(module, name, config, *args):
@@ -108,15 +109,18 @@ class Runner:
 
         # wrangle predictions
         pred_df.set_index('id_code', inplace=True)
-        pred_df['diagnosis'] = pred_df.apply(lambda row: np.round(row.mean()), axis=1)
+        pred_df['diagnosis'] = pred_df.apply(lambda row: int(np.round(row.mean())), axis=1)
         pred_df['target'] = data_loader.dataset.df.set_index('id_code')['diagnosis']
         self.logger.info(pred_df.head(5))
 
-        kappa = module_metric._quadratic_weighted_kappa(
-            pred_df['diagnosis'].values,
-            pred_df['target'].values,
-            5)
+        preds = pred_df['diagnosis'].values
+        targets = pred_df['target'].values
+
+        kappa = quadratic_weighted_kappa(preds, targets)
+        conf = conf_matrix(preds, targets)
+
         self.logger.info(f'Kappa: {kappa}')
+        self.logger.info(f'Conf: \n{conf}')
 
         # pred_df.to_csv('preds.csv')
         pred_df[['diagnosis']].to_csv('test_submission.csv')
@@ -172,7 +176,7 @@ class Runner:
 
         # wrangle predictions
         pred_df.set_index('id_code', inplace=True)
-        pred_df['diagnosis'] = pred_df.apply(lambda row: np.round(row.mean()), axis=1)
+        pred_df['diagnosis'] = pred_df.apply(lambda row: int(np.round(row.mean())), axis=1)
         self.logger.info(pred_df.head(5))
 
         # pred_df.to_csv('preds.csv')
