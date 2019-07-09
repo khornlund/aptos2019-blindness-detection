@@ -1,9 +1,7 @@
-import math
 from collections import OrderedDict
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision.models as models
 from efficientnet_pytorch import EfficientNet
 
