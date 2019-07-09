@@ -12,7 +12,7 @@ arch:
     #widen_factor: 10
     #in_channel: 3
     #dropout: 0.3
-    #pretrained: true
+    pretrained: true
     verbose: 0
 
 data_loader:
@@ -21,10 +21,10 @@ data_loader:
     batch_size: 32
     data_dir: data/preprocessed
     num_workers: 16
-    validation_split: 0.20
+    validation_split: 0.0
     img_size: 256
     train: true
-    alpha: 0.5
+    alpha: 0.8
     verbose: 2
 
 loss:
@@ -36,9 +36,9 @@ lr_scheduler:
   type: MultiStepLR
   args:
     milestones:
-      - 40
-      - 60
-      - 80
+      - 20
+      - 25
+      - 30
     gamma: 0.2
 
 metrics:
@@ -49,14 +49,14 @@ metrics:
 optimizer:
   type: Adam
   args:
-    lr: 0.0001
+    lr: 0.0003
     # momentum: 0.9
     # nesterov: True
     weight_decay: 0.0005
 
 training:
-  early_stop: 200
-  epochs: 200
+  early_stop: 60
+  epochs: 35
   # monitor: min val_loss
   save_period: 1
   tensorboard: true

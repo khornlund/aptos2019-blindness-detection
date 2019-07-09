@@ -22,7 +22,8 @@ class CodeExtractor:
         'util.py',
         'util_test.py',
         'wavelet.py',
-        'wavelet_test.py'
+        'wavelet_test.py',
+        'visualization.py',
     ]
 
     def __init__(self, dest='data/flat-code.txt'):
