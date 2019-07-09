@@ -17,7 +17,7 @@ Folder Structure
 
 ::
 
-  aptos/
+  aptos2019-blindness-detection/
   │
   ├── aptos/
   │    │
