@@ -69,7 +69,7 @@ You can run the tests using:
 
   $ pytest tests
 
-See `notebooks/preprocess.ipynb` to preprocess the data for training.
+See ``notebooks/preprocess.ipynb`` to preprocess the data for training.
 
 To start training, run:
 
