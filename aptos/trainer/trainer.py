@@ -60,28 +60,32 @@ class Trainer(BaseTrainer):
             loss = self.loss(output, target)
             loss.backward()
             self.optimizer.step()
-
-            self.writer.set_step((epoch - 1) * len(self.data_loader) + bidx)
-            self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
-
             bs = target.size(0)
             outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().squeeze(1).detach().numpy()
             targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
 
             if bidx % self.log_step == 0:
                 self._log_batch(epoch, bidx, bs, len(self.data_loader), loss.item())
-                self.writer.add_scalar('model_lr', self.optimizer.model_lr)
-                self.writer.add_scalar('loss_lr', self.optimizer.loss_lr)
-                for name, param in self.loss.named_parameters():
-                    if param.requires_grad:
-                        self.writer.add_scalar(name, param[0, 0])
-                if epoch == 1 and bidx == self.log_step:  # only log images once
-                    self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+
+        # tensorboard logging
+        self.writer.set_step((epoch - 1))
+        self.writer.add_scalar('model/lr', self.optimizer.model_lr)
+        self.writer.add_scalar('loss/lr', self.optimizer.loss_lr)
+        self.writer.add_scalar('loss/alpha', self.loss.alpha())
+        self.writer.add_scalar('loss/scale', self.loss.scale())
+        for name, param in self.loss.named_parameters():
+            if param.requires_grad:
+                self.writer.add_scalar(f'loss/{name}', param[0, 0])
+        if epoch == 1:  # only log images once to save time
+            self.writer.add_image(
+                'input', make_grid(data.cpu(), nrow=8, normalize=True))
 
         total_metrics = self._eval_metrics(outputs, targets)
+        total_loss /= len(self.data_loader)
+        self.writer.add_scalar('total_loss', total_loss)
         log = {
-            'loss': total_loss / len(self.data_loader),
+            'loss': total_loss,
             'metrics': total_metrics
         }
 
@@ -118,20 +122,18 @@ class Trainer(BaseTrainer):
         with torch.no_grad():
             for bidx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
-
                 output = self.model(data)
                 loss = self.loss(output, target)
-
-                self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + bidx, 'valid')
-                self.writer.add_scalar('loss', loss.item())
                 total_val_loss += loss.item()
-
                 bs = target.size(0)
                 outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().squeeze(1).detach().numpy()
                 targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
 
+        self.writer.set_step((epoch - 1), 'valid')
         total_val_metrics = self._eval_metrics(outputs, targets)
+        total_val_loss /= len(self.valid_data_loader)
+        self.writer.add_scalar('total_loss', total_val_loss)
         return {
-            'val_loss': total_val_loss / len(self.valid_data_loader),
+            'val_loss': total_val_loss,
             'val_metrics': total_val_metrics
         }

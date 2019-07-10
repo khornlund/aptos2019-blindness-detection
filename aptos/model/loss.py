@@ -35,3 +35,9 @@ class RobustLoss:
 
     def named_parameters(self):
         return self.loss.named_parameters()
+
+    def alpha(self):
+        return self.loss.alpha()
+
+    def scale(self):
+        return self.loss.scale()
