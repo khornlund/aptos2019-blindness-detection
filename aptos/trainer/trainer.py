@@ -15,7 +15,6 @@ class Trainer(BaseTrainer):
     def __init__(self, model, loss, metrics, optimizer, resume, config, device,
                  data_loader, valid_data_loader=None, lr_scheduler=None):
         super().__init__(model, loss, metrics, optimizer, resume, config, device)
-        self.config = config
         self.data_loader = data_loader
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
@@ -72,6 +71,11 @@ class Trainer(BaseTrainer):
 
             if bidx % self.log_step == 0:
                 self._log_batch(epoch, bidx, bs, len(self.data_loader), loss.item())
+                self.writer.add_scalar('model_lr', self.optimizer.model_lr)
+                self.writer.add_scalar('loss_lr', self.optimizer.loss_lr)
+                for name, param in self.loss.named_parameters():
+                    if param.requires_grad:
+                        self.writer.add_scalar(name, param[0, 0])
                 if epoch == 1 and bidx == self.log_step:  # only log images once
                     self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 

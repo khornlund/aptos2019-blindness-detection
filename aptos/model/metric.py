@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import cohen_kappa_score, confusion_matrix
+from sklearn.metrics import cohen_kappa_score, confusion_matrix, mean_squared_error
 
 # -- const --
 
@@ -27,6 +27,10 @@ def conf_matrix(output, target):
 def accuracy(output, target):
     correct = (np.round(output) == target)
     return correct.mean()
+
+
+def mse(output, target):
+    return mean_squared_error(target, output)
 
 
 def precision_0(output, target):

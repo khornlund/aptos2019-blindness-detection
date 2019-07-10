@@ -21,7 +21,7 @@ def flatten():
 
 
 @cli.command()
-@click.option('-c', '--config-filename', default=None, type=str,
+@click.option('-c', '--config-filename', default=None, type=str, multiple=True,
               help='config file path (default: None)')
 @click.option('-r', '--resume', default=None, type=str,
               help='path to latest checkpoint (default: None)')
@@ -29,21 +29,17 @@ def flatten():
               help='indices of GPUs to enable (default: all)')
 def train(config_filename, resume, device):
     if config_filename:
-        config = load_config(config_filename)
+        configs = [load_config(filename) for filename in config_filename]
     elif resume:
-        # load config from checkpoint if new config file is not given.
-        # Use '--config' and '--resume' together to fine-tune trained model with
-        # changed configurations.
-        config = torch.load(resume)['config']
-
+        configs = [torch.load(resume)['config']]
     else:
         raise AssertionError('Configuration file need to be specified. '
                              'Add "-c experiments/config.yaml", for example.')
-
     if device:
         os.environ['CUDA_VISIBLE_DEVICES'] = device
 
-    Runner().train(config, resume)
+    for config in configs:
+        Runner().train(config, resume)
 
 
 @cli.command()
@@ -89,7 +85,9 @@ def verbose_config_name(config):
     arch = config['arch']['type']
     loss = config['loss']['type']
     optim = config['optimizer']['type']
-    return '-'.join([short_name, arch, loss, optim])
+    mlr = config['optimizer']['args']['model_config']['args']['lr']
+    llr = config['optimizer']['args']['loss_config']['args']['lr']
+    return '-'.join([short_name, arch, loss, optim, f'mlr{mlr}', f'llr{llr}'])
 
 
 if __name__ == '__main__':
