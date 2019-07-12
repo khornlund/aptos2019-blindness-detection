@@ -82,7 +82,9 @@ class EffNet(BaseModel):
         if pretrained:
             self.model = EfficientNet.from_pretrained(model_name, num_classes=num_classes)
         else:
-            self.model = EfficientNet.from_name(model_name, num_classes=num_classes)
+            self.model = EfficientNet.from_name(
+                model_name,
+                override_params={'num_classes': num_classes})
         self.logger.info(f'<init>: \n{self}')
 
     def forward(self, x):
