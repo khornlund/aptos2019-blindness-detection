@@ -78,18 +78,6 @@ To start training, run:
   $ aptos train -c experiments/config.yml
 
 
-
-Using Multiple GPU
-------------------
-You can enable multi-GPU training by setting `n_gpu` argument of the config file to larger number.
-If configured to use smaller number of gpu than available, first n devices will be used by default.
-Specify indices of available GPUs by cuda environmental variable.
-
-.. code-block:: shell
-
-  aptos train --device 2,3 -c experiments/config.yml
-
-
 Tensorboard Visualization
 --------------------------
 This template supports `<https://pytorch.org/docs/stable/tensorboard.html>`_ visualization.
@@ -102,6 +90,16 @@ This template supports `<https://pytorch.org/docs/stable/tensorboard.html>`_ vis
 
     Type `tensorboard --logdir saved/runs/` at the project root, then server will open at
     `http://localhost:6006` (if clicking the link doesn't work, paste this into your browser)
+
+
+TODO
+====
+
+1. Additional data sources eg. `<http://www.adcis.net/en/third-party/messidor/>`_
+2. Alternative data processing techniques
+3. Alternative augmentation techniques
+4. Is robust loss better the mse? Better than classification?
+5. Model arch: can we improve EfficientNet?
 
 
 Acknowledgments
