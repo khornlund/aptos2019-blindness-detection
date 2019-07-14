@@ -1,3 +1,7 @@
 https://www.ethanrosenthal.com/2018/12/06/spacecutter-ordinal-regression/
 https://www.kaggle.com/c/diabetic-retinopathy-detection/data
 https://jamanetwork.com/journals/jama/fullarticle/2588763
+https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid
+http://www.it.lut.fi/project/imageret/diaretdb1_v2_1/
+https://github.com/mikevoets/jama16-retina-replication
+https://idrid.grand-challenge.org/Data/

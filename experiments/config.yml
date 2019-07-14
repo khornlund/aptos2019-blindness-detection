@@ -8,7 +8,7 @@ arch:
   args:
     model: b2
     num_classes: 1
-    pretrained: true
+    pretrained: false
     verbose: 0
 
 data_loader:
@@ -17,7 +17,7 @@ data_loader:
     batch_size: 32
     data_dir: data/preprocessed
     num_workers: 16
-    validation_split: 0.30
+    validation_split: 0.0
     img_size: 256
     train: true
     alpha: 0.8
@@ -40,7 +40,7 @@ optimizer:
     model_config:
       type: SGD
       args:
-        lr: 0.006
+        lr: 0.0006
         momentum: 0.9
         nesterov: True
         weight_decay: 0.0005
@@ -51,16 +51,18 @@ optimizer:
         weight_decay: 0.0005
 
 lr_scheduler:
-  type: MultiScheduler
+  type: MultiTorchScheduler
   args:
     model_config:
       type: MultiStepLR
       args:
         milestones:
+          - 20
           - 25
+          - 30
           - 35
           - 40
-        gamma: 0.2
+        gamma: 0.6
     loss_config:
       type: MultiStepLR
       args:

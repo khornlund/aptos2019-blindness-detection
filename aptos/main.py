@@ -116,14 +116,14 @@ class Runner:
         preds = pred_df['diagnosis'].values
         targets = pred_df['target'].values
 
-        kappa = quadratic_weighted_kappa(preds, targets)
-        conf = conf_matrix(preds, targets)
+        metrics = [getattr(module_metric, met) for met in config['metrics']]
 
-        self.logger.info(f'Kappa: {kappa}')
-        self.logger.info(f'Conf: \n{conf}')
+        for metric in metrics:
+            result = metric(preds, targets)
+            self.logger.info(f'{metric.__name__}: {result}')
 
         # pred_df.to_csv('preds.csv')
-        pred_df[['diagnosis']].to_csv('test_submission.csv')
+        pred_df.to_csv('test_predictions.csv')
         self.logger.info('Finished saving test predictions!')
 
     def predict(self, config, model_checkpoint):

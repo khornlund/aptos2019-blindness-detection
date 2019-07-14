@@ -25,6 +25,7 @@ dependencies:
   - mpmath
   - scikit-learn
   - opencv
+  - seaborn
   - pip:
     - tb-nightly  # https://www.endtoend.ai/pytorch-tensorboard
     - future      # until Tensorboard v1.14 released
