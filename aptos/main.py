@@ -8,14 +8,11 @@ import torch
 
 import aptos.data_loader.data_loaders as module_data
 import aptos.model.loss as module_loss
-import aptos.model.optimizer as module_opt
-import aptos.model.scheduler as module_slr
 import aptos.model.metric as module_metric
 import aptos.model.model as module_arch
 from aptos.trainer import Trainer
 from aptos.data_loader import PngDataLoader
 from aptos.utils import setup_logger, setup_logging
-from aptos.model.metric import quadratic_weighted_kappa, conf_matrix
 
 
 def get_instance(module, name, config, *args):
@@ -42,10 +39,10 @@ class Runner:
         metrics = [getattr(module_metric, met) for met in config['metrics']]
 
         self.logger.debug('Building optimizer and lr scheduler')
-        model_params = filter(lambda p: p.requires_grad, model.parameters())
-        loss_params = filter(lambda p: p.requires_grad, loss.parameters())
-        optimizer = get_instance(module_opt, 'optimizer', config, model_params, loss_params)
-        lr_scheduler = get_instance(module_slr, 'lr_scheduler', config, optimizer)
+        trainable_params = filter(lambda p: p.requires_grad, model.parameters())
+        optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
+        lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler',
+                                    config, optimizer)
 
         self.logger.debug('Initialising trainer')
         trainer = Trainer(model, loss, metrics, optimizer,

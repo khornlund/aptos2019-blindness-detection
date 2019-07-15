@@ -6,6 +6,9 @@ from aptos.utils import setup_logger
 
 
 class ImgProcessor:
+    """
+    This class is responsible for preprocessing the images, eg. crop, sharpen, resize, normalise.
+    """
 
     def __init__(self, crop_tol=12, radius_size=300, verbose=0):
         self.logger = setup_logger(self, verbose)
@@ -13,19 +16,26 @@ class ImgProcessor:
         self.radius_size = radius_size
         self.sequential = T.Compose([
             self.read_png,
-            self.crop_square,
+            self.crop_box,
             self.scale_radius,
-            self.weighted_blur,
-            self.crop_circle,
         ])
 
     def __call__(self, filename):
         return self.sequential(filename)
 
     def read_png(self, filename):
+        """
+        Load the image into a numpy array, and switch the channel order so it's in the format
+        expected by matplotlib (rgb).
+        """
         return cv2.imread(filename)[:, :, ::-1]  # bgr => rgb
 
-    def crop_square(self, img):
+    def crop_box(self, img):
+        """
+        Apply a bounding box to crop empty space around the image. In order to find the bounding
+        box, we blur the image and then apply a threshold. The blurring helps avoid the case where
+        an outlier bright pixel causes the bounding box to be larger than it needs to be.
+        """
         gb = cv2.GaussianBlur(img, (7, 7), 0)
         mask = (gb > self.crop_tol).any(2)
         coords = np.argwhere(mask)
@@ -34,16 +44,32 @@ class ImgProcessor:
         return img[y0:y1, x0:x1]
 
     def scale_radius(self, img):
+        """
+        Resize the image so the radius is `self.radius_size` pixels.
+        """
         x = img[img.shape[0] // 2, :, :].sum(1)
         r = (x > x.mean() / 10).sum() / 2
         s = self.radius_size / r
         return cv2.resize(img, None, fx=s, fy=s)
 
-    def weighted_blur(self, img):
-        gb = cv2.GaussianBlur(img, (0, 0), self.radius_size // 30)
-        return cv2.addWeighted(img, 4, gb, -4, 128)
+    # -- unused --
+
+    def sharpen(self, img):
+        """
+        Sharpen the image by subtracting a gaussian blur.
+        """
+        ksize = (0, 0)
+        sigmaX = self.radius_size // 30
+        alpha = 4
+        beta = -4
+        gamma = 255 // 2 + 1
+        gb = cv2.GaussianBlur(img, ksize, sigmaX)
+        return cv2.addWeighted(img, alpha, gb, beta, gamma)
 
     def crop_circle(self, img):
+        """
+        Apply a circular crop to remove edge effects.
+        """
         b = np.zeros(img.shape, dtype=np.uint8)
         cv2.circle(
             b,

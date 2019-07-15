@@ -45,11 +45,11 @@ class RobustLossAdaptive:
 
 class RobustLossGeneral:
 
-    def __init__(self, alpha=[0.0], scale=[0.5], reduction='mean'):
+    def __init__(self, device, alpha=0.0, scale=0.5, reduction='mean'):
         self.reduction = reduction
-        self.alpha = torch.Tensor(alpha)
-        self.scale = torch.Tensor(scale)
-        self.loss = lossfun()
+        self.alpha = torch.Tensor([alpha]).to(device)
+        self.scale = torch.Tensor([scale]).to(device)
+        self.loss = lossfun
 
     def __call__(self, output, target):
         target = target.float().unsqueeze(1)

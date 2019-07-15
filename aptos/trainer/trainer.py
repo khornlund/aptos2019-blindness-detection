@@ -61,8 +61,8 @@ class Trainer(BaseTrainer):
             loss.backward()
             self.optimizer.step()
 
-            self.writer.set_step((epoch - 1) + (bidx / len(self.data_loader)))
-            self.writer.add_scalar('loss', loss.item())
+            # self.writer.set_step((epoch - 1) + (bidx / len(self.data_loader)))
+            # self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
             bs = target.size(0)
             outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().squeeze(1).detach().numpy()
@@ -72,13 +72,14 @@ class Trainer(BaseTrainer):
                 self._log_batch(epoch, bidx, bs, len(self.data_loader), loss.item())
 
         # tensorboard logging
-        self.writer.add_scalar('model/lr', self.optimizer.model_lr)
-        self.writer.add_scalar('loss/lr', self.optimizer.loss_lr)
-        self.writer.add_scalar('loss/alpha', self.loss.alpha())
-        self.writer.add_scalar('loss/scale', self.loss.scale())
-        for name, param in self.loss.named_parameters():
-            if param.requires_grad:
-                self.writer.add_scalar(f'loss/{name}', param[0, 0])
+        self.writer.set_step(epoch - 1)
+        # self.writer.add_scalar('model/lr', self.optimizer.model_lr)
+        # self.writer.add_scalar('loss/lr', self.optimizer.loss_lr)
+        # self.writer.add_scalar('loss/alpha', self.loss.alpha())
+        # self.writer.add_scalar('loss/scale', self.loss.scale())
+        # for name, param in self.loss.named_parameters():
+        #     if param.requires_grad:
+        #         self.writer.add_scalar(f'loss/{name}', param[0, 0])
         if epoch == 1:  # only log images once to save time
             self.writer.add_image(
                 'input', make_grid(data.cpu(), nrow=8, normalize=True))
