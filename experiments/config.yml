@@ -8,16 +8,16 @@ arch:
   args:
     model: b2
     num_classes: 1
-    pretrained: false
+    pretrained: true
     verbose: 0
 
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 32
+    batch_size: 40
     data_dir: data/preprocessed
     num_workers: 16
-    validation_split: 0.0
+    validation_split: 0.30
     img_size: 256
     train: true
     alpha: 0.8
@@ -30,47 +30,31 @@ metrics:
 - mse
 
 loss:
-  type: RobustLoss
+  type: RobustLossGeneral
   args:
     reduction: mean
+    alpha: -0.0
+    scale: 0.3
 
 optimizer:
-  type: MultiOptimizer
+  type: SGD
   args:
-    model_config:
-      type: SGD
-      args:
-        lr: 0.0006
-        momentum: 0.9
-        nesterov: True
-        weight_decay: 0.0005
-    loss_config:
-      type: Adam
-      args:
-        lr: 0.01
-        weight_decay: 0.0005
+    lr: 0.001
+    momentum: 0.9
+    nesterov: True
+    weight_decay: 0.0005
 
 lr_scheduler:
-  type: MultiTorchScheduler
+  type: MultiStepLR
   args:
-    model_config:
-      type: MultiStepLR
-      args:
-        milestones:
-          - 20
-          - 25
-          - 30
-          - 35
-          - 40
-        gamma: 0.6
-    loss_config:
-      type: MultiStepLR
-      args:
-        milestones:
-          - 25
-          - 35
-          - 40
-        gamma: 0.2
+    milestones:
+      - 20
+      - 25
+      - 30
+      - 35
+      - 40
+      - 45
+    gamma: 0.6
 
 training:
   epochs: 50

@@ -1,0 +1,85 @@
+short_name: aptos
+n_gpu: 1
+save_dir: saved/
+seed: 1234
+
+arch:
+  type: EffNet
+  args:
+    model: b1
+    num_classes: 1
+    pretrained: true
+    verbose: 0
+
+data_loader:
+  type: NpyDataLoader
+  args:
+    batch_size: 32
+    data_dir: data/preprocessed/
+    num_workers: 16
+    validation_split: 0.30
+    img_size: 224
+    train: true
+    alpha: 0.8
+    verbose: 2
+
+metrics:
+- quadratic_weighted_kappa
+- conf_matrix
+- accuracy
+- mse
+
+loss:
+  type: RobustLoss
+  args:
+    reduction: mean
+
+optimizer:
+  type: MultiOptimizer
+  args:
+    model_config:
+      type: SGD
+      args:
+        lr: 1.0e-5
+        momentum: 0.9
+        nesterov: True
+        weight_decay: 0.0005
+    loss_config:
+      type: Adam
+      args:
+        lr: 1.0e-3
+        weight_decay: 0.0005
+
+lr_scheduler:
+  type: MultiCustomScheduler
+  args:
+    model_config:
+      type: WarmupRolloffScheduler
+      args:
+        start_lr: 1.0e-4
+        peak_lr: 1.0e-3
+        peak_epoch: 1
+        final_lr: 5.0e-6
+        final_epoch: 50
+    loss_config:
+      type: WarmupRolloffScheduler
+      args:
+        start_lr: 1.0e-3
+        peak_lr: 1.0e-2
+        peak_epoch: 1
+        final_lr: 1.0e-4
+        final_epoch: 50
+
+training:
+  epochs: 50
+  save_period: 5
+  tensorboard: true
+  verbose: 2
+
+testing:
+  data_dir: data/raw
+  ensemble_size: 5
+  batch_size: 64
+  img_size: 256
+  num_workers: 16
+  verbose: 2

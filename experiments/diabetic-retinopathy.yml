@@ -14,13 +14,13 @@ arch:
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 32
+    batch_size: 40
     data_dir: data/preprocessed/diabetic-retinopathy-detection
     num_workers: 16
     validation_split: 0.30
     img_size: 256
     train: true
-    alpha: 0.8
+    alpha: 0.7
     verbose: 2
 
 metrics:
@@ -30,45 +30,31 @@ metrics:
 - mse
 
 loss:
-  type: RobustLoss
+  type: RobustLossGeneral
   args:
     reduction: mean
+    alpha: 0.4
+    scale: 0.2
 
 optimizer:
-  type: MultiOptimizer
+  type: RMSprop
   args:
-    model_config:
-      type: SGD
-      args:
-        lr: 1.0e-5
-        momentum: 0.9
-        nesterov: True
-        weight_decay: 0.0005
-    loss_config:
-      type: Adam
-      args:
-        lr: 1.0e-3
-        weight_decay: 0.0005
+    lr: 0.0001
+    # momentum: 0.9
+    weight_decay: 0.0005
 
 lr_scheduler:
-  type: MultiCustomScheduler
+  type: MultiStepLR
   args:
-    model_config:
-      type: WarmupRolloffScheduler
-      args:
-        - start_lr: 1.0e-5
-        - peak_lr: 1.0e-3
-        - peak_epoch: 3
-        - final_lr: 1.0e-6
-        - final_epoch: 50
-    loss_config:
-      type: WarmupRolloffScheduler
-      args:
-        - start_lr: 1.0e-3
-        - peak_lr: 1.0e-1
-        - peak_epoch: 3
-        - final_lr: 1.0e-5
-        - final_epoch: 50
+    milestones:
+      - 15
+      - 20
+      - 25
+      - 30
+      - 35
+      - 40
+      - 45
+    gamma: 0.6
 
 training:
   epochs: 50
