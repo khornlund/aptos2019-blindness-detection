@@ -32,4 +32,5 @@ dependencies:
     - tqdm
     - torch-dct
     - efficientnet-pytorch
+    - git+https://github.com/khornlund/robust_loss_pytorch
     - -e .
