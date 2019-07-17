@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from .robust_loss_pytorch import AdaptiveLossFunction, lossfun
+from robust_loss_pytorch import AdaptiveLossFunction, lossfun
 
 
 def ce_loss(output, target):
