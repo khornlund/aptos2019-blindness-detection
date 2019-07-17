@@ -98,7 +98,7 @@ class Runner:
                     data = data.to(device)
                     output = model(data).cpu()
                     batch_size = output.shape[0]
-                    batch_preds = output.squeeze(1).clamp(min=0, max=4)
+                    batch_preds = output.max(1)[1]  # argmax
                     preds[i * batch_size:(i + 1) * batch_size] = batch_preds
 
                 # add column for this iteration of predictions

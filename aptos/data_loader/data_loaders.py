@@ -1,12 +1,10 @@
-import pathlib
-
 import numpy as np
 from torch.utils.data import DataLoader, Subset
 from torch.utils.data.sampler import SubsetRandomSampler, BatchSampler, SequentialSampler
 
 from aptos.utils import setup_logger
 
-from .datasets import PngDataset, NpyDataset
+from .datasets import PngDataset, NpyDataset, NpyPairedDataset
 from .augmentation import InplacePngTransforms, MediumNpyTransforms
 from .sampler import SamplerFactory
 
@@ -95,3 +93,20 @@ class NpyDataLoader(DataLoaderBase):
 
         super().__init__(dataset, batch_size, validation_split, num_workers,
                          train=train, alpha=alpha, verbose=verbose)
+
+
+class NpyPairedDataLoader(DataLoader):
+
+    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+                 train=True, verbose=0):
+        self.logger = setup_logger(self, verbose)
+        transform = MediumNpyTransforms(train, img_size)
+        dataset = NpyPairedDataset(0, 4, data_dir, transform)
+
+        self.init_kwargs = {
+            'dataset': dataset,
+            'shuffle': True,
+            'batch_size': batch_size,
+            'num_workers': num_workers
+        }
+        super().__init__(**self.init_kwargs)

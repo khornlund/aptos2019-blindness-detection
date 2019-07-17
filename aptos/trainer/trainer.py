@@ -75,12 +75,6 @@ class Trainer(BaseTrainer):
         # tensorboard logging
         self.writer.set_step(epoch - 1)
         # self.writer.add_scalar('model/lr', self.optimizer.model_lr)
-        # self.writer.add_scalar('loss/lr', self.optimizer.loss_lr)
-        # self.writer.add_scalar('loss/alpha', self.loss.alpha())
-        # self.writer.add_scalar('loss/scale', self.loss.scale())
-        # for name, param in self.loss.named_parameters():
-        #     if param.requires_grad:
-        #         self.writer.add_scalar(f'loss/{name}', param[0, 0])
         if epoch == 1:  # only log images once to save time
             self.writer.add_image(
                 'input', make_grid(data.cpu(), nrow=8, normalize=True))
@@ -97,6 +91,7 @@ class Trainer(BaseTrainer):
             self.logger.debug('Starting validation...')
             val_log = self._valid_epoch(epoch)
             log = {**log, **val_log}
+            log['gen_error'] = log['loss'] - log['val_loss']  # generalisation error
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()

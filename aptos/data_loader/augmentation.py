@@ -18,26 +18,6 @@ class AugmentationBase:
         return self.transform(images)
 
 
-class MediumPngTransforms(AugmentationBase):
-
-    MEANS = [0.18345418820778528, 0.2639983979364236, 0.2345641329884529]
-    STDS  = [0.11223869025707245, 0.15332063722113767, 0.11037248869736989]
-
-    def __init__(self, train, img_size):
-        self.img_size = img_size
-        super().__init__(train)
-
-    def build_transforms(self):
-        return T.Compose([
-            T.RandomAffine(degrees=45, translate=(0.05, 0)),
-            T.RandomResizedCrop(self.img_size, scale=(0.8, 1), ratio=(0.9, 1.1)),
-            T.RandomHorizontalFlip(),
-            T.RandomVerticalFlip(),
-            T.ToTensor(),
-            T.Normalize(self.MEANS, self.STDS)
-        ])
-
-
 class InplacePngTransforms(AugmentationBase):
 
     def __init__(self, train, img_size):
@@ -54,8 +34,13 @@ class InplacePngTransforms(AugmentationBase):
 
 class MediumNpyTransforms(AugmentationBase):
 
+    # aptos data
     MEANS = [117.49076830707003 / 255, 62.91094476592893 / 255, 20.427623897278952 / 255]
     STDS  = [56.52915067774219 / 255, 31.734976154784277 / 255, 14.035278108570138 / 255]
+
+    # diabetic retinopathy data
+    # MEANS = [0.425435904540512, 0.29683724913004966, 0.21237167260862766]
+    # STDS  = [0.23488338611200874, 0.16641528716966847, 0.12489399081128415]
 
     def __init__(self, train, img_size):
         self.img_size = img_size

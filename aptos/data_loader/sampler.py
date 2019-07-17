@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 import pandas as pd
-from torch.utils.data.sampler import BatchSampler
+from torch.utils.data.sampler import BatchSampler, Sampler
 
 from aptos.utils import setup_logger
 
@@ -136,7 +136,7 @@ class ClassWeightedBatchSampler(BatchSampler):
         return selected
 
     def __iter__(self):
-        [cidx.reset() for cidx in self.class_idxs]
+        [cidx.shuffle() for cidx in self.class_idxs]
         start_idxs = np.zeros(self.n_classes, dtype=int)
         for bidx in range(self.n_batches):
             yield self._get_batch(start_idxs)
@@ -148,37 +148,39 @@ class ClassWeightedBatchSampler(BatchSampler):
 
 class CircularList:
     """
-    Applies modulo function to indexing. Shuffles elements each time indexing wraps around.
-
-    For example, imagine the list contained elements [a, b, c, d]
-
-    Index requested: 0   1   2   3   4   5   6   7   8   9   10   11
-                                   ^               ^
-                                shuffle         shuffle
-
-    State of _items: [a, b, c, d]    [c, b, d, a]    [a, c, d, b]
-
-    Value returned:  a   b   c   d   c   b   d  a    a   c   d   b
+    Applies modulo function to indexing.
     """
     def __init__(self, items):
         self._items = items
         self._mod = len(self._items)
-        self.reset()
-
-    def reset(self):
         self.shuffle()
-        self._next_shuffle = len(self._items)
 
     def shuffle(self):
         np.random.shuffle(self._items)
 
-    def _check_wraparound(self, key):
-        if key >= self._next_shuffle:
-            self.shuffle()
-            self._next_shuffle += len(self._items)
-
     def __getitem__(self, key):
         if isinstance(key, slice):
             return [self[i] for i in range(key.start, key.stop)]
-        self._check_wraparound(key)
         return self._items[key % self._mod]
+
+
+class PairedSampler(Sampler):
+    """
+    Given datasets a and b, yield random pairs of samples.
+    """
+    def __init__(self, dsa, dsb):
+        self.dsa = dsa
+        self.dsb = dsb
+        self.min_len = min(len(self.dsa), len(self.dsb))
+
+    def __iter__(self):
+        idxsa = np.arange(0, len(self.dsa))
+        idxsb = np.arange(0, len(self.dsb))
+        np.random.shuffle(idxsa)
+        np.random.shuffle(idxsb)
+
+        for i in range(self.min_len):
+            yield (self.dsa[i], self.dsb[i])
+
+    def __len__(self):
+        return self.min_len

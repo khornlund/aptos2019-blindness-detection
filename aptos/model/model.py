@@ -89,3 +89,23 @@ class EffNet(BaseModel):
 
     def forward(self, x):
         return self.model(x)
+
+
+class PairedEffNet(BaseModel):
+    """
+    https://github.com/lukemelas/EfficientNet-PyTorch
+    """
+    def __init__(self, num_classes, pretrained, model='b2', verbose=0):
+        super().__init__(verbose)
+        model_name = f'efficientnet-{model}'
+        if pretrained:
+            self.model = EfficientNet.from_pretrained(model_name, num_classes=num_classes)
+        else:
+            self.model = EfficientNet.from_name(
+                model_name,
+                override_params={'num_classes': num_classes})
+        self.logger.info(f'<init>: \n{self}')
+
+    def forward(self, a, b):
+        x = torch.cat((a, b), 2)
+        return self.model(x)

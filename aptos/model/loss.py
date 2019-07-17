@@ -92,6 +92,7 @@ class WassersteinLoss(nn.Module):
     def forward(self, output, target):
         output = F.softmax(output, dim=1)
         target = F.one_hot(target, num_classes=self.n_classes).float()
+
         if self.reduction == 'mean':
             return self.loss(output, target).mean()
         if self.reduction == 'sum':

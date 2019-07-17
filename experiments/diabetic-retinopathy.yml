@@ -7,7 +7,7 @@ arch:
   type: EffNet
   args:
     model: b2
-    num_classes: 1
+    num_classes: 5
     pretrained: true
     verbose: 0
 
@@ -20,41 +20,33 @@ data_loader:
     validation_split: 0.30
     img_size: 256
     train: true
-    alpha: 0.7
+    alpha: 0.75
     verbose: 2
 
 metrics:
 - quadratic_weighted_kappa
 - conf_matrix
 - accuracy
-- mse
 
 loss:
-  type: RobustLossGeneral
+  type: WassersteinLoss
   args:
+    n_classes: 5
     reduction: mean
-    alpha: 0.4
-    scale: 0.2
 
 optimizer:
-  type: RMSprop
+  type: SGD
   args:
-    lr: 0.0001
-    # momentum: 0.9
+    lr: 0.005
+    momentum: 0.9
+    nesterov: True
     weight_decay: 0.0005
 
 lr_scheduler:
-  type: MultiStepLR
+  type: StepLR
   args:
-    milestones:
-      - 15
-      - 20
-      - 25
-      - 30
-      - 35
-      - 40
-      - 45
-    gamma: 0.6
+    step_size: 1
+    gamma: 0.95
 
 training:
   epochs: 50
