@@ -1,4 +1,5 @@
 import pytest
+import collections
 
 import numpy as np
 
@@ -98,10 +99,11 @@ def test_samplerfactory_batch_statistics(factory, weights, class_sizes, batch_si
     ),
     (
         [1, 2],
-        0, 5,
-        [1, 2, 1, 2, 1]
+        0, 6,
+        [1, 2, 1, 2, 1, 2]
     )
 ])
 def test_circularlist(items, start_idx, end_idx, expected_items):
     cl = CircularList(items)
-    assert cl[start_idx:end_idx] == expected_items
+    items = cl[start_idx:end_idx]
+    assert collections.Counter(items) == collections.Counter(expected_items)
