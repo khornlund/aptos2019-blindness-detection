@@ -68,7 +68,7 @@ class MediumNpyTransforms(AugmentationBase):
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1), ratio=(0.9, 1.1)),
             T.ToTensor(),
             T.Normalize(self.MEANS, self.STDS),
-            Cutout(self.img_size, length=self.img_size // 4)
+            # Cutout(self.img_size, length=self.img_size // 4)
         ])
 
 

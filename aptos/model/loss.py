@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 from robust_loss_pytorch import AdaptiveLossFunction, lossfun
@@ -58,3 +59,65 @@ class RobustLossGeneral:
         if self.reduction == 'sum':
             return self.loss(target - output, alpha=self.alpha, scale=self.scale).sum()
         raise
+
+
+class WassersteinLoss(nn.Module):
+    """
+    https://stats.stackexchange.com/a/299391
+    """
+    def __init__(self, n_classes, reduction='mean', quadratic=True):
+        self.n_classes = n_classes
+        self.reduction = reduction
+
+        if self.reduction is not None and \
+           self.reduction != 'mean' and \
+           self.reduction != 'sum':
+            raise Exception(f'`reduction` must be either `None`, "mean", or "sum"')
+
+        if quadratic:
+            self.loss = self.cdf_distance_batch_quadratic
+        else:
+            self.loss = self.cdf_distance_batch_linear
+
+        super().__init__()
+
+    def forward(self, output, target):
+        output = F.softmax(output, dim=1)
+        target = F.one_hot(target, num_classes=self.n_classes).float()
+        if self.reduction == 'mean':
+            return self.loss(output, target).mean()
+        if self.reduction == 'sum':
+            return self.loss(output, target).sum()
+        return self.loss(output, target)
+
+    # -- batch operations -------------------------------------------------------------------------
+
+    def cdf_distance_batch_linear(self, output, target):
+        assert target.shape == output.shape
+        cdf_target = torch.cumsum(target, dim=1)
+        cdf_estimate = torch.cumsum(output, dim=1)
+        cdf_diff = cdf_estimate - cdf_target
+        return torch.sum(torch.abs(cdf_diff), dim=1)
+
+    def cdf_distance_batch_quadratic(self, output, target):
+        assert target.shape == output.shape
+        cdf_target = torch.cumsum(target, dim=1)
+        cdf_estimate = torch.cumsum(output, dim=1)
+        cdf_diff = cdf_estimate - cdf_target
+        return torch.sum(torch.pow(torch.abs(cdf_diff), 2), dim=1)
+
+    # -- 1D operations, used for testing ----------------------------------------------------------
+
+    def cdf_distance_single_linear(self, output, target):
+        assert target.shape == output.shape
+        cdf_target = torch.cumsum(target, dim=0)
+        cdf_estimate = torch.cumsum(output, dim=0)
+        cdf_diff = cdf_estimate - cdf_target
+        return torch.sum(torch.abs(cdf_diff))
+
+    def cdf_distance_single_quadratic(self, output, target):
+        assert target.shape == output.shape
+        cdf_target = torch.cumsum(target, dim=0)
+        cdf_estimate = torch.cumsum(output, dim=0)
+        cdf_diff = cdf_estimate - cdf_target
+        return torch.sum(torch.pow(torch.abs(cdf_diff), 2))

@@ -65,7 +65,8 @@ class Trainer(BaseTrainer):
             # self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
             bs = target.size(0)
-            outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().squeeze(1).detach().numpy()
+            preds = output.max(1)[1]  # argmax
+            outputs[bidx * bs:(bidx + 1) * bs] = preds.cpu().detach().numpy()
             targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
 
             if bidx % self.log_step == 0:
@@ -129,7 +130,8 @@ class Trainer(BaseTrainer):
                 loss = self.loss(output, target)
                 total_val_loss += loss.item()
                 bs = target.size(0)
-                outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().squeeze(1).detach().numpy()
+                preds = output.max(1)[1]  # argmax
+                outputs[bidx * bs:(bidx + 1) * bs] = preds.cpu().detach().numpy()
                 targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
 
         self.writer.set_step((epoch - 1), 'valid')

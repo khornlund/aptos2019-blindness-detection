@@ -35,7 +35,7 @@ class Runner:
         model, device = self._prepare_device(model, config['n_gpu'])
 
         self.logger.debug('Getting loss and metric function handles')
-        loss = get_instance(module_loss, 'loss', config, device)
+        loss = get_instance(module_loss, 'loss', config)
         metrics = [getattr(module_metric, met) for met in config['metrics']]
 
         self.logger.debug('Building optimizer and lr scheduler')

@@ -7,14 +7,14 @@ arch:
   type: EffNet
   args:
     model: b2
-    num_classes: 1
+    num_classes: 5
     pretrained: true
     verbose: 0
 
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 40
+    batch_size: 8
     data_dir: data/preprocessed
     num_workers: 16
     validation_split: 0.30
@@ -27,19 +27,19 @@ metrics:
 - quadratic_weighted_kappa
 - conf_matrix
 - accuracy
-- mse
 
 loss:
-  type: RobustLossGeneral
+  type: WassersteinLoss
   args:
+    n_classes: 5
     reduction: mean
-    alpha: -0.0
-    scale: 0.3
+    # alpha: -0.0
+    # scale: 0.3
 
 optimizer:
   type: SGD
   args:
-    lr: 0.001
+    lr: 0.01
     momentum: 0.9
     nesterov: True
     weight_decay: 0.0005

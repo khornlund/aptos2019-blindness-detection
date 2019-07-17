@@ -13,20 +13,17 @@ N_LABELS = len(LABELS)
 # -- metrics --
 
 def quadratic_weighted_kappa(output, target):
-    pred = np.round(np.clip(output, MIN_LABEL, MAX_LABEL))
-    return cohen_kappa_score(pred, target, labels=LABELS, weights='quadratic')
+    return cohen_kappa_score(output, target, labels=LABELS, weights='quadratic')
 
 
 def conf_matrix(output, target):
-    pred = np.round(np.clip(output, MIN_LABEL, MAX_LABEL))
-    cm = confusion_matrix(target, pred, labels=LABELS)
+    cm = confusion_matrix(target, output, labels=LABELS)
     df = pd.DataFrame(cm)
     return pd.concat([df], keys=['label'], names=['pred'])
 
 
 def accuracy(output, target):
-    correct = (np.round(output) == target)
-    return correct.mean()
+    return (output == target).mean()
 
 
 def mse(output, target):

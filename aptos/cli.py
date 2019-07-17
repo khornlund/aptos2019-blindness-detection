@@ -85,11 +85,8 @@ def verbose_config_name(config):
     arch = config['arch']['type']
     loss = config['loss']['type']
     optim = config['optimizer']['type']
-    mlr = config['optimizer']['args']['lr']
-    alpha = config['loss']['args']['alpha']
-    scale = config['loss']['args']['scale']
-    return '-'.join([short_name, arch, loss, optim,
-                     f'mlr={mlr}', f'alpha={alpha}', f'scale={scale}'])
+    lr = config['optimizer']['args']['lr']
+    return '-'.join([short_name, arch, loss, optim, f'lr={lr}'])
 
 
 if __name__ == '__main__':
