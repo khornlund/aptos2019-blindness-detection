@@ -64,10 +64,14 @@ class RobustLossGeneral:
 class WassersteinLoss(nn.Module):
     """
     Implements the `Wassertein metric <https://en.wikipedia.org/wiki/Wasserstein_metric>`_
-    using `cumulative distribution functions <https://stats.stackexchange.com/a/299391>`_.
+    AKA `Earth Mover's Distance <https://en.wikipedia.org/wiki/Earth_mover%27s_distance>`_ using
+    `cumulative distribution functions <https://stats.stackexchange.com/a/299391>`_.
 
     In theory, this addresses the problem of KL divergence not taking into acount the ordinal
     nature of classes (ratings).
+
+    Code has been adapted from:
+    `<https://github.com/truskovskiyk/nima.pytorch/blob/master/nima/emd_loss.py>`
     """
     def __init__(self, n_classes, reduction='mean', quadratic=True):
         self.n_classes = n_classes

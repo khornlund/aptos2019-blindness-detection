@@ -33,8 +33,6 @@ loss:
   args:
     n_classes: 5
     reduction: mean
-    # alpha: -0.0
-    # scale: 0.3
 
 optimizer:
   type: SGD
