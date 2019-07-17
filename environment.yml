@@ -21,8 +21,6 @@ dependencies:
   - tensorflow
   - kaggle
   - pillow
-  - absl-py
-  - mpmath
   - scikit-learn
   - opencv
   - seaborn
@@ -30,7 +28,6 @@ dependencies:
     - tb-nightly  # https://www.endtoend.ai/pytorch-tensorboard
     - future      # until Tensorboard v1.14 released
     - tqdm
-    - torch-dct
     - efficientnet-pytorch
     - git+https://github.com/khornlund/robust_loss_pytorch
     - -e .
