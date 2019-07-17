@@ -63,7 +63,11 @@ class RobustLossGeneral:
 
 class WassersteinLoss(nn.Module):
     """
-    https://stats.stackexchange.com/a/299391
+    Implements the `Wassertein metric <https://en.wikipedia.org/wiki/Wasserstein_metric>`_
+    using `cumulative distribution functions <https://stats.stackexchange.com/a/299391>`_.
+
+    In theory, this addresses the problem of KL divergence not taking into acount the ordinal
+    nature of classes (ratings).
     """
     def __init__(self, n_classes, reduction='mean', quadratic=True):
         self.n_classes = n_classes
@@ -90,7 +94,7 @@ class WassersteinLoss(nn.Module):
             return self.loss(output, target).sum()
         return self.loss(output, target)
 
-    # -- batch operations -------------------------------------------------------------------------
+    # -- batch operations, used by forward pass ---------------------------------------------------
 
     def cdf_distance_batch_linear(self, output, target):
         assert target.shape == output.shape
