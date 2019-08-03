@@ -2,6 +2,7 @@ import os
 import random
 
 from tqdm import tqdm
+from apex import amp
 import numpy as np
 import pandas as pd
 import torch
@@ -43,6 +44,10 @@ class Runner:
         optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
         lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler',
                                     config, optimizer)
+
+        opt_level = config['apex']
+        self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')
+        model, optimizer = amp.initialize(model, optimizer, opt_level=opt_level)
 
         self.logger.debug('Initialising trainer')
         trainer = Trainer(model, loss, metrics, optimizer,

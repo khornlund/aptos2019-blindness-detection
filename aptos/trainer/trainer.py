@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from torchvision.utils import make_grid
+from apex import amp
 
 from aptos.base import BaseTrainer
 
@@ -58,7 +59,9 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             output = self.model(data)
             loss = self.loss(output, target)
-            loss.backward()
+
+            with amp.scale_loss(loss, self.optimizer) as scaled_loss:
+                scaled_loss.backward()
             self.optimizer.step()
 
             # self.writer.set_step((epoch - 1) + (bidx / len(self.data_loader)))

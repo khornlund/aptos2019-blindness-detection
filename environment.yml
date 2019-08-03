@@ -1,3 +1,6 @@
+# requires manual install:
+# https://github.com/NVIDIA/apex
+
 name: aptos
 
 channels:

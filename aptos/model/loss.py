@@ -71,7 +71,7 @@ class WassersteinLoss(nn.Module):
     nature of classes (ratings).
 
     Code has been adapted from:
-    `<https://github.com/truskovskiyk/nima.pytorch/blob/master/nima/emd_loss.py>`
+    `<https://github.com/truskovskiyk/nima.pytorch/blob/master/nima/emd_loss.py>`_
     """
     def __init__(self, n_classes, reduction='mean', quadratic=True):
         self.n_classes = n_classes
