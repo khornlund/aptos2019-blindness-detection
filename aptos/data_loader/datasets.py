@@ -3,6 +3,7 @@ from pathlib import Path
 from torch.utils.data import Dataset
 import pandas as pd
 import numpy as np
+import torch
 
 
 class PngDataset(Dataset):
@@ -29,7 +30,10 @@ class PngDataset(Dataset):
         return self._df
 
     def load_img(self, filename):
-        return self.transform(str(filename))  # let transforms do loading
+        try:
+            return self.transform(str(filename))  # let transforms do loading
+        except:
+            return torch.zeros((3, 256, 256))
 
     def __getitem__(self, index):
         filename = self.df.iloc[index]['filename']

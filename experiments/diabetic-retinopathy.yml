@@ -36,11 +36,11 @@ loss:
     reduction: mean
 
 optimizer:
-  type: SGD
+  type: Adam
   args:
-    lr: 0.005
-    momentum: 0.9
-    nesterov: True
+    lr: 0.0002
+    # momentum: 0.9
+    # nesterov: True
     weight_decay: 0.0005
 
 lr_scheduler:
