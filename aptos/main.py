@@ -1,5 +1,6 @@
 import os
 import random
+from itertools import chain
 
 from tqdm import tqdm
 import numpy as np
@@ -10,6 +11,7 @@ import aptos.data_loader.data_loaders as module_data
 import aptos.model.loss as module_loss
 import aptos.model.metric as module_metric
 import aptos.model.model as module_arch
+import aptos.model.optimizer as module_optim
 from aptos.trainer import Trainer
 from aptos.data_loader import PngDataLoader
 from aptos.utils import setup_logger, setup_logging
@@ -35,23 +37,26 @@ class Runner:
         model, device = self._prepare_device(model, config['n_gpu'])
 
         self.logger.debug('Getting loss and metric function handles')
-        loss = get_instance(module_loss, 'loss', config)
+        loss = get_instance(module_loss, 'loss', config, device)
         metrics = [getattr(module_metric, met) for met in config['metrics']]
 
         self.logger.debug('Building optimizer and lr scheduler')
-        trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-        optimizer = get_instance(torch.optim, 'optimizer', config, trainable_params)
+        trainable_params = filter(
+            lambda p: p.requires_grad,
+            chain(model.parameters(), loss.parameters())
+        )
+        optimizer = get_instance(module_optim, 'optimizer', config, trainable_params)
         lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler',
                                     config, optimizer)
 
         self.logger.debug('Initialising trainer')
         trainer = Trainer(model, loss, metrics, optimizer,
-                        resume=resume,
-                        config=config,
-                        device=device,
-                        data_loader=data_loader,
-                        valid_data_loader=valid_data_loader,
-                        lr_scheduler=lr_scheduler)
+                          resume=resume,
+                          config=config,
+                          device=device,
+                          data_loader=data_loader,
+                          valid_data_loader=valid_data_loader,
+                          lr_scheduler=lr_scheduler)
 
         trainer.train()
         self.logger.debug('Finished!')

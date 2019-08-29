@@ -54,19 +54,17 @@ class Trainer(BaseTrainer):
         targets = np.zeros(self.data_loader.n_samples)
         for bidx, (data, target) in enumerate(self.data_loader):
             data, target = data.to(self.device), target.to(self.device)
-
+            # self.logger.info(f'data: {data.size()}, target: {target.size()}')
             self.optimizer.zero_grad()
             output = self.model(data)
+            # self.logger.info(f'output: {output.size()}')
             loss = self.loss(output, target)
             loss.backward()
             self.optimizer.step()
 
-            # self.writer.set_step((epoch - 1) + (bidx / len(self.data_loader)))
-            # self.writer.add_scalar('loss', loss.item())
             total_loss += loss.item()
             bs = target.size(0)
-            preds = output.max(1)[1]  # argmax
-            outputs[bidx * bs:(bidx + 1) * bs] = preds.cpu().detach().numpy()
+            outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().detach().squeeze(1).numpy()
             targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
 
             if bidx % self.log_step == 0:
@@ -74,13 +72,8 @@ class Trainer(BaseTrainer):
 
         # tensorboard logging
         self.writer.set_step(epoch - 1)
-        # self.writer.add_scalar('model/lr', self.optimizer.model_lr)
-        # self.writer.add_scalar('loss/lr', self.optimizer.loss_lr)
-        # self.writer.add_scalar('loss/alpha', self.loss.alpha())
-        # self.writer.add_scalar('loss/scale', self.loss.scale())
-        # for name, param in self.loss.named_parameters():
-        #     if param.requires_grad:
-        #         self.writer.add_scalar(f'loss/{name}', param[0, 0])
+        self.writer.add_scalar('loss/alpha', self.loss.alpha())
+        self.writer.add_scalar('loss/scale', self.loss.scale())
         if epoch == 1:  # only log images once to save time
             self.writer.add_image(
                 'input', make_grid(data.cpu(), nrow=8, normalize=True))
@@ -130,8 +123,7 @@ class Trainer(BaseTrainer):
                 loss = self.loss(output, target)
                 total_val_loss += loss.item()
                 bs = target.size(0)
-                preds = output.max(1)[1]  # argmax
-                outputs[bidx * bs:(bidx + 1) * bs] = preds.cpu().detach().numpy()
+                outputs[bidx * bs:(bidx + 1) * bs] = output.cpu().detach().squeeze(1).numpy()
                 targets[bidx * bs:(bidx + 1) * bs] = target.cpu().detach().numpy()
 
         self.writer.set_step((epoch - 1), 'valid')

@@ -7,17 +7,17 @@ arch:
   type: EffNet
   args:
     model: b2
-    num_classes: 5
+    num_classes: 1
     pretrained: true
     verbose: 0
 
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 8
+    batch_size: 32
     data_dir: data/preprocessed
     num_workers: 16
-    validation_split: 0.30
+    validation_split: 0.20
     img_size: 256
     train: true
     alpha: 0.8
@@ -27,38 +27,32 @@ metrics:
 - quadratic_weighted_kappa
 - conf_matrix
 - accuracy
+- mse
 
 loss:
-  type: WassersteinLoss
+  type: RobustLossAdaptive
   args:
-    n_classes: 5
     reduction: mean
 
 optimizer:
-  type: SGD
+  type: Ranger
   args:
-    lr: 0.01
-    momentum: 0.9
-    nesterov: True
+    lr: 0.005
     weight_decay: 0.0005
+    # betas: (.95, 0.999)
 
 lr_scheduler:
   type: MultiStepLR
   args:
     milestones:
-      - 20
-      - 25
-      - 30
-      - 35
-      - 40
-      - 45
+      - 100
     gamma: 0.6
 
 training:
-  epochs: 50
+  epochs: 100
   save_period: 5
   tensorboard: true
-  verbose: 2
+  verbose: 1
 
 testing:
   data_dir: data/raw

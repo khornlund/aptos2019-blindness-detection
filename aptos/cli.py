@@ -5,7 +5,7 @@ import yaml
 import torch
 
 from aptos.main import Runner
-from aptos.utils import CodeExtractor, ImportExtractor
+from aptos.utils import CodeExtractor, ImportExtractor, kaggle_upload
 
 
 @click.group()
@@ -18,6 +18,14 @@ def flatten():
     """Producing flat version of package"""
     CodeExtractor().start()
     ImportExtractor().start()
+
+
+@cli.command()
+@click.option('-r', '--run-directory', required=True, type=str, help='Path to run')
+@click.option('-e', '--epochs', type=int, multiple=True, help='Epochs to upload')
+def upload(run_directory, epochs):
+    """Upload model weights as a dataset to kaggle"""
+    kaggle_upload(run_directory, epochs)
 
 
 @cli.command()

@@ -18,26 +18,6 @@ class AugmentationBase:
         return self.transform(images)
 
 
-class MediumPngTransforms(AugmentationBase):
-
-    MEANS = [0.18345418820778528, 0.2639983979364236, 0.2345641329884529]
-    STDS  = [0.11223869025707245, 0.15332063722113767, 0.11037248869736989]
-
-    def __init__(self, train, img_size):
-        self.img_size = img_size
-        super().__init__(train)
-
-    def build_transforms(self):
-        return T.Compose([
-            T.RandomAffine(degrees=45, translate=(0.05, 0)),
-            T.RandomResizedCrop(self.img_size, scale=(0.8, 1), ratio=(0.9, 1.1)),
-            T.RandomHorizontalFlip(),
-            T.RandomVerticalFlip(),
-            T.ToTensor(),
-            T.Normalize(self.MEANS, self.STDS)
-        ])
-
-
 class InplacePngTransforms(AugmentationBase):
 
     def __init__(self, train, img_size):
@@ -54,8 +34,8 @@ class InplacePngTransforms(AugmentationBase):
 
 class MediumNpyTransforms(AugmentationBase):
 
-    MEANS = [117.49076830707003 / 255, 62.91094476592893 / 255, 20.427623897278952 / 255]
-    STDS  = [56.52915067774219 / 255, 31.734976154784277 / 255, 14.035278108570138 / 255]
+    MEANS = [0.4867097183040652, 0.2644520793120305, 0.08668221759237044]
+    STDS  = [0.22970864838008945, 0.12686210123674974, 0.07935218321519312]
 
     def __init__(self, train, img_size):
         self.img_size = img_size
@@ -68,7 +48,7 @@ class MediumNpyTransforms(AugmentationBase):
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1), ratio=(0.9, 1.1)),
             T.ToTensor(),
             T.Normalize(self.MEANS, self.STDS),
-            # Cutout(self.img_size, length=self.img_size // 4)
+            Cutout(self.img_size, length=self.img_size // 4)
         ])
 
 
@@ -102,6 +82,9 @@ class Cutout:
             masks[i, :, :] = self.random_mask()
         return masks
 
+    def random_int(self, n):
+        return torch.randint(n, (1,))[0].item()
+
     def random_mask(self):
         h = self.img_size
         w = self.img_size
@@ -109,8 +92,8 @@ class Cutout:
         mask = np.ones((h, w), np.float32)
 
         for n in range(self.n_holes):
-            y = np.random.randint(h)
-            x = np.random.randint(w)
+            y = self.random_int(h)
+            x = self.random_int(w)
 
             y1 = np.clip(y - self.length // 2, 0, h)
             y2 = np.clip(y + self.length // 2, 0, h)
@@ -134,7 +117,7 @@ class Cutout:
         `torch.Tensor`
             Image with n_holes of dimension length x length cut out of it.
         """
-        mask_idx = np.random.choice(self.masks.shape[0])
+        mask_idx = self.random_int(self.masks.shape[0])
         mask = self.masks[mask_idx]
         mask = mask.expand_as(img)
         img = img * mask
