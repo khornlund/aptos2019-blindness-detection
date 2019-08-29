@@ -2,6 +2,7 @@ short_name: aptos
 n_gpu: 1
 save_dir: saved/
 seed: 1234
+apex: O1
 
 arch:
   type: EffNet
@@ -14,7 +15,7 @@ arch:
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 32
+    batch_size: 64
     data_dir: data/preprocessed
     num_workers: 16
     validation_split: 0.20
