@@ -2,7 +2,6 @@ short_name: aptos
 n_gpu: 1
 save_dir: saved/
 seed: 1234
-apex: O1
 
 arch:
   type: EffNet
@@ -15,7 +14,7 @@ arch:
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 64
+    batch_size: 40
     data_dir: data/preprocessed
     num_workers: 16
     validation_split: 0.20
@@ -40,20 +39,20 @@ loss:
 optimizer:
   type: Ranger
   args:
-    lr: 0.005
+    lr: 0.0007
     b1: 0.90
     weight_decay: 0.0005
 
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.005
-    start_anneal: 25
-    n_epochs: 100
+    start_lr: 0.0007
+    start_anneal: 15
+    n_epochs: 50
 
 training:
-  epochs: 100
-  noise_std: 0.1
+  epochs: 50
+  noise_std: 0.10
   save_period: 5
   tensorboard: true
   verbose: 1

@@ -2,7 +2,7 @@ import os
 import random
 
 from tqdm import tqdm
-from apex import amp
+#from apex import amp
 import numpy as np
 import pandas as pd
 import torch
@@ -46,9 +46,9 @@ class Runner:
         optimizer = get_instance(module_optim, 'optimizer', config, trainable_params)
         lr_scheduler = get_instance(module_sched, 'lr_scheduler', config, optimizer)
 
-        opt_level = config['apex']
-        self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')
-        model, optimizer = amp.initialize(model, optimizer, opt_level=opt_level)
+        # opt_level = config['apex']
+        # self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')
+        # model, optimizer = amp.initialize(model, optimizer, opt_level=opt_level)
 
         self.logger.debug('Initialising trainer')
         trainer = Trainer(model, loss, metrics, optimizer,
@@ -83,14 +83,17 @@ class Runner:
 
         self.logger.debug('Building model architecture')
         model = get_instance(module_arch, 'arch', config)
+        model, device = self._prepare_device(model, config['n_gpu'])
+
+        opt_level = config['apex']
+        self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')
+        model = amp.initialize(model, opt_level=opt_level)
 
         self.logger.debug(f'Loading checkpoint {model_checkpoint}')
         checkpoint = torch.load(model_checkpoint)
         state_dict = checkpoint['state_dict']
         model.load_state_dict(state_dict)
 
-        # prepare model for testing
-        model, device = self._prepare_device(model, config['n_gpu'])
         model.eval()
 
         ensemble_size = config['testing']['ensemble_size']
@@ -150,6 +153,7 @@ class Runner:
 
         self.logger.debug('Building model architecture')
         model = get_instance(module_arch, 'arch', config)
+        model, device = self._prepare_device(model, config['n_gpu'])
 
         self.logger.debug(f'Loading checkpoint {model_checkpoint}')
         checkpoint = torch.load(model_checkpoint)
@@ -157,7 +161,6 @@ class Runner:
         model.load_state_dict(state_dict)
 
         # prepare model for testing
-        model, device = self._prepare_device(model, config['n_gpu'])
         model.eval()
 
         ensemble_size = config['testing']['ensemble_size']
@@ -172,10 +175,11 @@ class Runner:
                     if torch.isnan(data).any().item():
                         msg = f'NaN input: {data}'
                         raise Exception(msg)
-                    output = model(data).detach().cpu()
+                    output = model(data)
                     if torch.isnan(output).any().item():
                         msg = f'NaN output: {output}'
                         raise Exception(msg)
+                    output = output.detach().cpu()
                     batch_size = output.shape[0]
                     preds[i * batch_size:(i + 1) * batch_size] = output.squeeze(1)
 

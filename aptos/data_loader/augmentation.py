@@ -70,22 +70,11 @@ class Cutout:
         Number of patches to cut out of each image.
     length : int
         The length (in pixels) of each square patch.
-    n_masks : int
-        Pre-build N masks to randomly choose from (so they don't have to be generated at runtime).
     """
-    def __init__(self, img_size, n_holes=1, length=8, n_masks=int(5e4)):
+    def __init__(self, img_size, n_holes=1, length=8):
         self.img_size = img_size
         self.n_holes = n_holes
         self.length = length
-        self.n_masks = n_masks
-
-        self.masks = self.get_masks(self.n_masks)
-
-    def get_masks(self, n):
-        masks = torch.zeros((n, self.img_size, self.img_size))
-        for i in range(n):
-            masks[i, :, :] = self.random_mask()
-        return masks
 
     def random_int(self, n):
         return torch.randint(n, (1,))[0].item()
@@ -122,9 +111,7 @@ class Cutout:
         `torch.Tensor`
             Image with n_holes of dimension length x length cut out of it.
         """
-        mask_idx = self.random_int(self.masks.shape[0])
-        mask = self.masks[mask_idx]
+        mask = self.random_mask()
         mask = mask.expand_as(img)
         img = img * mask
-
         return img

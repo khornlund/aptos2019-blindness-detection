@@ -1,6 +1,7 @@
 import click
 import os
 import yaml
+import warnings
 
 import torch
 
@@ -11,6 +12,7 @@ from aptos.utils import CodeExtractor, ImportExtractor, kaggle_upload
 @click.group()
 def cli():
     """CLI for aptos"""
+    warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 @cli.command()

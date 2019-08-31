@@ -8,7 +8,7 @@ def kaggle_upload(run_dir, epochs):
     # create the directory to contain our new dataset
     run_dir = Path(run_dir)
     upload_dir = Path('./upload')
-    target_dir = upload_dir / run_dir.parent.stem / run_dir.stem
+    target_dir = upload_dir / run_dir.parent.name / run_dir.name
     target_dir.mkdir(parents=True, exist_ok=True)
 
     # copy in the config file
@@ -22,17 +22,17 @@ def kaggle_upload(run_dir, epochs):
 
     # create metadata file
     meta = {
-        'title': str(run_dir.stem),
-        'subtitle': str(run_dir.parent.stem),
-        'id': f'khornlund/{run_dir.stem}',
+        'title': str(run_dir.name),
+        'subtitle': str(run_dir.parent.name),
+        'id': f'khornlund/{run_dir.name}',
         'licenses': [{'name': 'CC0-1.0'}]
     }
 
-    with open(target_dir.parent / 'dataset-metadata.json', 'w') as fh:
+    with open(target_dir / 'dataset-metadata.json', 'w') as fh:
         json.dump(meta, fh, indent=4)
 
     # upload
     subprocess.run(
-        ['kaggle', 'datasets', 'create', '-p', str(target_dir.parent), '-r', 'zip'],
+        ['kaggle', 'datasets', 'create', '-p', str(target_dir), '-r', 'zip'],
         stdout=subprocess.PIPE
     )
