@@ -21,6 +21,8 @@ class Trainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.log_step = int(np.sqrt(len(data_loader)))
 
+        self.noise_std = config['training']['noise_std']
+
     def _eval_metrics(self, output, target):
         with torch.no_grad():
             acc_metrics = []
@@ -53,12 +55,16 @@ class Trainer(BaseTrainer):
         outputs = np.zeros(self.data_loader.n_samples)
         targets = np.zeros(self.data_loader.n_samples)
         for bidx, (data, target) in enumerate(self.data_loader):
-            data, target = data.to(self.device), target.to(self.device)
+            data, target = data.to(self.device), target.float().to(self.device)
             # self.logger.info(f'data: {data.size()}, target: {target.size()}')
             self.optimizer.zero_grad()
             output = self.model(data)
             # self.logger.info(f'output: {output.size()}')
-            loss = self.loss(output, target)
+            means = torch.zeros_like(target)
+            noise = torch.normal(mean=means, std=self.noise_std)
+            # noise = noise.to(self.device)
+            # self.logger.info(f'Noise: {noise}')
+            loss = self.loss(output, target + noise)
             loss.backward()
             self.optimizer.step()
 
@@ -72,8 +78,8 @@ class Trainer(BaseTrainer):
 
         # tensorboard logging
         self.writer.set_step(epoch - 1)
-        self.writer.add_scalar('loss/alpha', self.loss.alpha())
-        self.writer.add_scalar('loss/scale', self.loss.scale())
+        # self.writer.add_scalar('loss/alpha', self.loss.alpha())
+        # self.writer.add_scalar('loss/scale', self.loss.scale())
         if epoch == 1:  # only log images once to save time
             self.writer.add_image(
                 'input', make_grid(data.cpu(), nrow=8, normalize=True))

@@ -34,8 +34,13 @@ class InplacePngTransforms(AugmentationBase):
 
 class MediumNpyTransforms(AugmentationBase):
 
-    MEANS = [0.4867097183040652, 0.2644520793120305, 0.08668221759237044]
-    STDS  = [0.22970864838008945, 0.12686210123674974, 0.07935218321519312]
+    # training data
+    # MEANS = [0.4867097183040652, 0.2644520793120305, 0.08668221759237044]
+    # STDS  = [0.22970864838008945, 0.12686210123674974, 0.07935218321519312]
+
+    # ImageNet
+    MEANS = [0.485, 0.456, 0.406]
+    STDS  = [0.229, 0.224, 0.225]
 
     def __init__(self, train, img_size):
         self.img_size = img_size

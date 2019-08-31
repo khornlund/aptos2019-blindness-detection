@@ -1,6 +1,5 @@
 import os
 import random
-from itertools import chain
 
 from tqdm import tqdm
 from apex import amp
@@ -13,6 +12,7 @@ import aptos.model.loss as module_loss
 import aptos.model.metric as module_metric
 import aptos.model.model as module_arch
 import aptos.model.optimizer as module_optim
+import aptos.model.scheduler as module_sched
 from aptos.trainer import Trainer
 from aptos.data_loader import PngDataLoader
 from aptos.utils import setup_logger, setup_logging
@@ -42,13 +42,9 @@ class Runner:
         metrics = [getattr(module_metric, met) for met in config['metrics']]
 
         self.logger.debug('Building optimizer and lr scheduler')
-        trainable_params = filter(
-            lambda p: p.requires_grad,
-            chain(model.parameters(), loss.parameters())
-        )
+        trainable_params = filter(lambda p: p.requires_grad, model.parameters())
         optimizer = get_instance(module_optim, 'optimizer', config, trainable_params)
-        lr_scheduler = get_instance(torch.optim.lr_scheduler, 'lr_scheduler',
-                                    config, optimizer)
+        lr_scheduler = get_instance(module_sched, 'lr_scheduler', config, optimizer)
 
         opt_level = config['apex']
         self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')
@@ -173,16 +169,22 @@ class Runner:
                 preds = torch.zeros(len(data_loader.dataset))
                 for i, data in enumerate(tqdm(data_loader)):
                     data = data.to(device)
-                    output = model(data).cpu()
+                    if torch.isnan(data).any().item():
+                        msg = f'NaN input: {data}'
+                        raise Exception(msg)
+                    output = model(data).detach().cpu()
+                    if torch.isnan(output).any().item():
+                        msg = f'NaN output: {output}'
+                        raise Exception(msg)
                     batch_size = output.shape[0]
-                    batch_preds = output.squeeze(1).clamp(min=0, max=4)
-                    preds[i * batch_size:(i + 1) * batch_size] = batch_preds
+                    preds[i * batch_size:(i + 1) * batch_size] = output.squeeze(1)
 
                 # add column for this iteration of predictions
                 pred_df[str(e)] = preds.numpy()
 
         # wrangle predictions
         pred_df.set_index('id_code', inplace=True)
+        self.logger.info(pred_df.head(100))
         pred_df['diagnosis'] = pred_df.apply(lambda row: int(np.round(row.mean())), axis=1)
         self.logger.info(pred_df.head(5))
 

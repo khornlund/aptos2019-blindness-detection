@@ -131,7 +131,6 @@ class BaseTrainer:
             'monitor_best': self.mnt_best,
             'config': self.config
         }
-        state.update(self.optimizer.state_dict())
         filename = os.path.join(self.checkpoint_dir, f'checkpoint-epoch{epoch}.pth')
         torch.save(state, filename)
         self.logger.info(f"Saving checkpoint: {filename} ...")
@@ -157,12 +156,4 @@ class BaseTrainer:
                                 "different from that of checkpoint. This may yield an "
                                 "exception while state_dict is being loaded.")
         self.model.load_state_dict(checkpoint['state_dict'])
-
-        # # load optimizer state from checkpoint only when optimizer type is not changed.
-        # if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
-        #     self.logger.warning("Warning: Optimizer type given in config file is different from "
-        #                         "that of checkpoint. Optimizer parameters not being resumed.")
-        # else:
-        #     self.optimizer.load_state_dict(checkpoint)
-
         self.logger.info(f'Checkpoint "{resume_path}" (epoch {self.start_epoch}) loaded')

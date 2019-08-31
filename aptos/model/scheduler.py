@@ -105,6 +105,26 @@ class CyclicalDecayScheduler(CustomScheduler):
         return sin_decay(offset, amplitude, n_periods, n_epochs, gamma)
 
 
+class CosineAnnealingScheduler(CustomScheduler):
+
+    def __init__(self, optimizer, start_lr, start_anneal, n_epochs):
+        self._lrs = self.get_lrs(start_lr, start_anneal, n_epochs)
+        super().__init__(optimizer)
+
+    def get_lrs(self, start_lr, start_anneal, n_epochs):
+        # constant LR to start
+        lrs = np.zeros((n_epochs,))
+        lrs[0:start_anneal] = start_lr
+
+        # setup rolloff params
+        length = n_epochs - start_anneal
+
+        # rolloff to zero
+        rolloff_lrs = rolloff(length, magnitude=start_lr)
+        lrs[start_anneal:] = rolloff_lrs
+        return lrs
+
+
 # -- Util functions --
 
 def rolloff(length, loc_factor=0.5, scale_factor=0.1, magnitude=1, offset=0):

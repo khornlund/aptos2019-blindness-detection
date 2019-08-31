@@ -13,7 +13,8 @@ N_LABELS = len(LABELS)
 # -- metrics --
 
 def quadratic_weighted_kappa(output, target):
-    return cohen_kappa_score(round_clip(output), target, labels=LABELS, weights='quadratic')
+    return cohen_kappa_score(
+        round_clip(output), round_clip(target), labels=LABELS, weights='quadratic')
 
 
 def conf_matrix(output, target):
