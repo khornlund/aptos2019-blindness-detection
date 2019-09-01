@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import torch
 import torchvision.transforms as T
+from torch.distributions.beta import Beta
 from torch.utils.data import Dataset
 from PIL import Image
 
@@ -94,16 +95,15 @@ class MixupNpyDataset(Dataset):
 
     pre_tsfm = T.Compose([
         T.ToPILImage(),
-        T.RandomRotation(degrees=180),
-    ])
-
-    post_tsfm = T.Compose([
         T.RandomAffine(
             degrees=180,
             translate=(0, 0.05),
             shear=(-0.05, 0.05)
         ),
         T.RandomResizedCrop(256, scale=(0.8, 1), ratio=(0.9, 1.1)),
+    ])
+
+    post_tsfm = T.Compose([
         T.ColorJitter(
             brightness=0.2,
             contrast=0.2,
@@ -113,14 +113,14 @@ class MixupNpyDataset(Dataset):
             [0.485, 0.456, 0.406],
             [0.229, 0.224, 0.225]
         ),
-        T.RandomErasing(
-            p=0.8,
-            scale=(0.05, 0.15),
-            ratio=(0.4, 2.5)
-        )
+        # T.RandomErasing(
+        #     p=0.8,
+        #     scale=(0.05, 0.15),
+        #     ratio=(0.4, 2.5)
+        # )
     ])
 
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, alpha=0.4):
         self.images_dir = Path(data_dir) / 'train_images'
         self.labels_filename = Path(data_dir) / self.train_csv
 
@@ -130,6 +130,8 @@ class MixupNpyDataset(Dataset):
         self.class_idxs = [
             self.df.loc[self.df['diagnosis'] == c, :].index.values for c in range(self.N_CLASSES)
         ]
+
+        self.beta_dist = Beta(torch.tensor([alpha]), torch.tensor([alpha]))
 
     @property
     def df(self):
@@ -141,18 +143,21 @@ class MixupNpyDataset(Dataset):
     def random_choice(self, items):
         return items[torch.randint(len(items), (1,))[0].item()]
 
+    def random_beta(self):
+        return self.beta_dist.sample().item()
+
     def random_neighbour_class(self, c):
         if c == 0:
-            return 1
+            return c if self.random_float() > 0.5 else c + 1
         if c == 4:
-            return 3
+            return c if self.random_float() > 0.5 else c - 1
         return c - 1 if self.random_float() > 0.5 else c + 1
 
     def load_img(self, filename):
         return self.pre_tsfm(np.load(filename))
 
     def mixup(self, X1, X2, y1, y2):
-        alpha = self.random_float()
+        alpha = self.random_beta()
         beta = 1 - alpha
         X = Image.blend(X1, X2, alpha)
         y = (alpha * y1) + (beta * y2)

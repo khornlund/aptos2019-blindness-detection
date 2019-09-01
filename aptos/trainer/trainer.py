@@ -132,6 +132,10 @@ class Trainer(BaseTrainer):
         total_val_metrics = self._eval_metrics(outputs, targets)
         total_val_loss /= len(self.valid_data_loader)
         self.writer.add_scalar('total_loss', total_val_loss)
+
+        if epoch == 1:
+            self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+
         return {
             'val_loss': total_val_loss,
             'val_metrics': total_val_metrics
