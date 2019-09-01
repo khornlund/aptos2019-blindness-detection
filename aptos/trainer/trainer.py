@@ -60,11 +60,7 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             output = self.model(data)
             # self.logger.info(f'output: {output.size()}')
-            means = torch.zeros_like(target)
-            noise = torch.normal(mean=means, std=self.noise_std)
-            # noise = noise.to(self.device)
-            # self.logger.info(f'Noise: {noise}')
-            loss = self.loss(output, target + noise)
+            loss = self.loss(output, target)
             loss.backward()
             self.optimizer.step()
 

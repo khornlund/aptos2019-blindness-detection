@@ -4,7 +4,7 @@ from torch.utils.data.sampler import SubsetRandomSampler, BatchSampler, Sequenti
 
 from aptos.utils import setup_logger
 
-from .datasets import PngDataset, NpyDataset
+from .datasets import PngDataset, NpyDataset, MixupNpyDataset
 from .augmentation import InplacePngTransforms, MediumNpyTransforms, HeavyNpyTransforms
 from .sampler import SamplerFactory
 
@@ -93,3 +93,52 @@ class NpyDataLoader(DataLoaderBase):
 
         super().__init__(dataset, batch_size, validation_split, num_workers,
                          train=train, alpha=alpha, verbose=verbose)
+
+
+class MixupDataLoader(DataLoader):
+
+    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+                 alpha=None, verbose=0):
+        self.logger = setup_logger(self, verbose)
+
+        if validation_split > 0:
+            valid_tsfm = MediumNpyTransforms(train=False, img_size=img_size)
+            dataset_valid = NpyDataset(data_dir, valid_tsfm, train=True)
+
+            all_idx = np.arange(len(dataset_valid))
+            len_valid = int(len(all_idx) * validation_split)
+            valid_idx = np.random.choice(all_idx, size=len_valid, replace=False)
+            valid_sampler = BatchSampler(SubsetRandomSampler(valid_idx), batch_size, False)
+            self.logger.info(f'Selected {len(valid_idx)}/{len(all_idx)} indices for validation')
+            valid_targets = dataset_valid.df.iloc[valid_idx].groupby('diagnosis').count()
+            self.logger.info(f'Validation class distribution: {valid_targets}')
+
+            self._loader_valid = DataLoader(
+                dataset_valid,
+                batch_sampler=valid_sampler,
+                num_workers=num_workers
+            )
+        else:
+            valid_idx = []
+
+        dataset_train = MixupNpyDataset(data_dir)
+        all_idx = np.arange(len(dataset_train))
+        train_idx = [i for i in all_idx if i not in valid_idx]
+
+        if alpha is None:
+            self.logger.info('No sample weighting selected.')
+            subset = Subset(dataset_train, train_idx)
+            sampler = BatchSampler(SequentialSampler(subset), batch_size, False)
+            return sampler, len(train_idx)
+
+        factory = SamplerFactory(verbose)
+        sampler = factory.get(dataset_train.df, train_idx, batch_size, alpha)
+        self.n_samples = len(sampler) * batch_size
+
+        super().__init__(dataset_train, batch_sampler=sampler, num_workers=num_workers)
+
+    def split_validation(self):
+        if self._loader_valid is None:
+            return None
+        else:
+            return self._loader_valid

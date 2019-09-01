@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import torch
+import torchvision.transforms as T
 from torch.utils.data import Dataset
 from PIL import Image
 
@@ -91,10 +92,35 @@ class MixupNpyDataset(Dataset):
     N_CLASSES = 5
     train_csv = 'train.csv'
 
-    def __init__(self, data_dir, pre_tsfm, post_tsfm):
-        self.pre_tsfm  = pre_tsfm
-        self.post_tsfm = post_tsfm
+    pre_tsfm = T.Compose([
+        T.ToPILImage(),
+        T.RandomRotation(degrees=180),
+    ])
 
+    post_tsfm = T.Compose([
+        T.RandomAffine(
+            degrees=180,
+            translate=(0, 0.05),
+            shear=(-0.05, 0.05)
+        ),
+        T.RandomResizedCrop(256, scale=(0.8, 1), ratio=(0.9, 1.1)),
+        T.ColorJitter(
+            brightness=0.2,
+            contrast=0.2,
+            saturation=0.2),
+        T.ToTensor(),
+        T.Normalize(
+            [0.485, 0.456, 0.406],
+            [0.229, 0.224, 0.225]
+        ),
+        T.RandomErasing(
+            p=0.8,
+            scale=(0.05, 0.15),
+            ratio=(0.4, 2.5)
+        )
+    ])
+
+    def __init__(self, data_dir):
         self.images_dir = Path(data_dir) / 'train_images'
         self.labels_filename = Path(data_dir) / self.train_csv
 
