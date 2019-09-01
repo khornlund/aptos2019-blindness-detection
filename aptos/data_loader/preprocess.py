@@ -10,7 +10,7 @@ class ImgProcessor:
     This class is responsible for preprocessing the images, eg. crop, sharpen, resize, normalise.
     """
 
-    def __init__(self, crop_tol=12, img_width=300, verbose=0):
+    def __init__(self, crop_tol=12, img_width=512, verbose=0):
         self.logger = setup_logger(self, verbose)
         self.crop_tol = crop_tol
         self.img_width = img_width

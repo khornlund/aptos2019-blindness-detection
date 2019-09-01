@@ -1,7 +1,7 @@
 short_name: aptos
 n_gpu: 1
 save_dir: saved/
-seed: 1234
+seed: 123456
 
 arch:
   type: EffNet
@@ -39,7 +39,7 @@ loss:
 optimizer:
   type: Ranger
   args:
-    lr: 0.0004
+    lr: 0.0003
     b1: 0.90
     N_sma_threshhold: 4
     weight_decay: 0.0005
@@ -47,9 +47,9 @@ optimizer:
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.0004
-    start_anneal: 10
-    n_epochs: 50
+    start_lr: 0.0003
+    start_anneal: 5
+    n_epochs: 20
 
 training:
   epochs: 50

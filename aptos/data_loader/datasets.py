@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from PIL import Image
 
 
 class PngDataset(Dataset):
@@ -85,15 +86,28 @@ class NpyDataset(Dataset):
         return self.df.shape[0]
 
 
-class MixupNpyDataset(NpyDataset):
+class MixupNpyDataset(Dataset):
 
     N_CLASSES = 5
+    train_csv = 'train.csv'
 
-    def __init__(self, data_dir, transform):
-        super().__init__(data_dir, transform, True)
+    def __init__(self, data_dir, pre_tsfm, post_tsfm):
+        self.pre_tsfm  = pre_tsfm
+        self.post_tsfm = post_tsfm
+
+        self.images_dir = Path(data_dir) / 'train_images'
+        self.labels_filename = Path(data_dir) / self.train_csv
+
+        self._df = pd.read_csv(self.labels_filename)
+        self._df['filename'] = self._df['id_code'].apply(lambda x: self.images_dir / f'{x}.npy')
+
         self.class_idxs = [
             self.df.loc[self.df['diagnosis'] == c, :].index.values for c in range(self.N_CLASSES)
         ]
+
+    @property
+    def df(self):
+        return self._df
 
     def random_float(self):
         return torch.rand((1,))[0].item()
@@ -109,12 +123,12 @@ class MixupNpyDataset(NpyDataset):
         return c - 1 if self.random_float() > 0.5 else c + 1
 
     def load_img(self, filename):
-        return np.load(filename)
+        return self.pre_tsfm(np.load(filename))
 
     def mixup(self, X1, X2, y1, y2):
         alpha = self.random_float()
         beta = 1 - alpha
-        X = (alpha * X1) + (beta * X2)
+        X = Image.blend(X1, X2, alpha)
         y = (alpha * y1) + (beta * y2)
         return X, y
 
@@ -132,4 +146,7 @@ class MixupNpyDataset(NpyDataset):
         X2 = self.load_img(f2)
 
         X, y = self.mixup(X1, X2, y1, y2)
-        return (self.transform(X), y)
+        return (self.post_tsfm(X), y)
+
+    def __len__(self):
+        return self.df.shape[0]

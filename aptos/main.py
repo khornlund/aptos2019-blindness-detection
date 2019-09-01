@@ -2,7 +2,6 @@ import os
 import random
 
 from tqdm import tqdm
-#from apex import amp
 import numpy as np
 import pandas as pd
 import torch
@@ -84,10 +83,6 @@ class Runner:
         self.logger.debug('Building model architecture')
         model = get_instance(module_arch, 'arch', config)
         model, device = self._prepare_device(model, config['n_gpu'])
-
-        opt_level = config['apex']
-        self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')
-        model = amp.initialize(model, opt_level=opt_level)
 
         self.logger.debug(f'Loading checkpoint {model_checkpoint}')
         checkpoint = torch.load(model_checkpoint)
