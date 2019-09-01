@@ -18,7 +18,7 @@ class ImgProcessor:
             self.read_png,
             self.crop_box,
             self.resize,
-            # self.pad_square
+            self.pad_square
         ])
 
     def __call__(self, filename):
@@ -47,19 +47,27 @@ class ImgProcessor:
     def resize(self, img):
         H, W, C = img.shape
         scale_percent = self.img_width / W
-        dim = (self.img_width, int(H * scale_percent))
+        new_height = min(self.img_width, int(H * scale_percent))
+        dim = (self.img_width, new_height)
         return cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
 
     def pad_square(self, img):
         """
         Pad the top/bottom of the image with zeros to make it square.
         """
-        H, W, C = img.shape
-        if H == W:
-            return img
-        top_pad = (H - self.img_width) // 2
-        btm_pad = self.img_width - top_pad
-        return np.pad(img, ((0, 0), (top_pad, btm_pad), (0, 0)), mode='constant')
+        try:
+            H, W, C = img.shape
+            assert H <= W
+            if H == W:
+                return img
+            pad_amount = W - H
+            top_pad = pad_amount // 2
+            btm_pad = pad_amount - top_pad
+            return cv2.copyMakeBorder(img, top_pad, btm_pad, 0, 0, cv2.BORDER_CONSTANT, value=0)
+        except Exception as ex:
+            msg = f'Caught exception: {ex}'
+            print(msg)
+            raise Exception(msg)
 
     # -- unused --
 
