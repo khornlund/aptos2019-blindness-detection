@@ -39,27 +39,30 @@ loss:
 optimizer:
   type: Ranger
   args:
-    lr: 0.005
+    lr: 0.0005
+    b1: 0.90
+    N_sma_threshhold: 4
     weight_decay: 0.0005
 
 lr_scheduler:
-  type: MultiStepLR
+  type: CosineAnnealingScheduler
   args:
-    milestones:
-      - 100
-    gamma: 0.6
+    start_lr: 0.0005
+    start_anneal: 2
+    n_epochs: 50
 
 training:
   epochs: 50
-  noise_std: 0.1
+  noise_std: 0.10
   save_period: 5
   tensorboard: true
-  verbose: 2
+  verbose: 1
 
 testing:
   data_dir: data/raw
-  ensemble_size: 5
+  ensemble_size: 2
   batch_size: 64
   img_size: 256
   num_workers: 16
   verbose: 2
+

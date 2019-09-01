@@ -5,7 +5,7 @@ from torch.utils.data.sampler import SubsetRandomSampler, BatchSampler, Sequenti
 from aptos.utils import setup_logger
 
 from .datasets import PngDataset, NpyDataset
-from .augmentation import InplacePngTransforms, MediumNpyTransforms
+from .augmentation import InplacePngTransforms, MediumNpyTransforms, HeavyNpyTransforms
 from .sampler import SamplerFactory
 
 
@@ -88,7 +88,7 @@ class NpyDataLoader(DataLoaderBase):
 
     def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
                  train=True, alpha=None, verbose=0):
-        transform = MediumNpyTransforms(train, img_size)
+        transform = HeavyNpyTransforms(train, img_size)
         dataset = NpyDataset(data_dir, transform, train=train)
 
         super().__init__(dataset, batch_size, validation_split, num_workers,

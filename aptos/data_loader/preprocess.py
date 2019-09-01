@@ -18,7 +18,7 @@ class ImgProcessor:
             self.read_png,
             self.crop_box,
             self.resize,
-            self.pad_square
+            # self.pad_square
         ])
 
     def __call__(self, filename):

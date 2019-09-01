@@ -39,21 +39,22 @@ loss:
 optimizer:
   type: Ranger
   args:
-    lr: 0.0007
+    lr: 0.0004
     b1: 0.90
+    N_sma_threshhold: 4
     weight_decay: 0.0005
 
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.0007
-    start_anneal: 15
+    start_lr: 0.0004
+    start_anneal: 10
     n_epochs: 50
 
 training:
   epochs: 50
   noise_std: 0.10
-  save_period: 5
+  save_period: 1
   tensorboard: true
   verbose: 1
 

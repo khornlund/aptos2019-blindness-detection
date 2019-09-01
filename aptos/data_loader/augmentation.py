@@ -34,10 +34,6 @@ class InplacePngTransforms(AugmentationBase):
 
 class MediumNpyTransforms(AugmentationBase):
 
-    # training data
-    # MEANS = [0.4867097183040652, 0.2644520793120305, 0.08668221759237044]
-    # STDS  = [0.22970864838008945, 0.12686210123674974, 0.07935218321519312]
-
     # ImageNet
     MEANS = [0.485, 0.456, 0.406]
     STDS  = [0.229, 0.224, 0.225]
@@ -54,6 +50,39 @@ class MediumNpyTransforms(AugmentationBase):
             T.ToTensor(),
             T.Normalize(self.MEANS, self.STDS),
             Cutout(self.img_size, length=self.img_size // 4)
+        ])
+
+
+class HeavyNpyTransforms(AugmentationBase):
+
+    # ImageNet
+    MEANS = [0.485, 0.456, 0.406]
+    STDS  = [0.229, 0.224, 0.225]
+
+    def __init__(self, train, img_size):
+        self.img_size = img_size
+        super().__init__(train)
+
+    def build_transforms(self):
+        return T.Compose([
+            T.ToPILImage(),
+            T.RandomAffine(
+                degrees=180,
+                translate=(0, 0.05),
+                shear=(-0.05, 0.05)
+            ),
+            T.RandomResizedCrop(self.img_size, scale=(0.8, 1), ratio=(0.9, 1.1)),
+            T.ColorJitter(
+                brightness=0.2,
+                contrast=0.2,
+                saturation=0.2),
+            T.ToTensor(),
+            T.Normalize(self.MEANS, self.STDS),
+            T.RandomErasing(
+                p=0.8,
+                scale=(0.05, 0.15),
+                ratio=(0.4, 2.5)
+            )
         ])
 
 
