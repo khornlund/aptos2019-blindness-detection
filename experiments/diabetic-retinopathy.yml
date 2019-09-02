@@ -4,7 +4,7 @@ save_dir: saved/
 seed: 1234
 
 arch:
-  type: EffNet
+  type: EffNetMaxAvg
   args:
     model: b2
     num_classes: 1
@@ -45,10 +45,10 @@ lr_scheduler:
   args:
     start_lr: 0.0005
     start_anneal: 5
-    n_epochs: 50
+    n_epochs: 40
 
 training:
-  epochs: 50
+  epochs: 40
   noise_std: 0.10
   save_period: 5
   tensorboard: true
