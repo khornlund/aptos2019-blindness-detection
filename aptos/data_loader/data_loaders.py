@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 from torch.utils.data import DataLoader, Subset
 from torch.utils.data.sampler import SubsetRandomSampler, BatchSampler, SequentialSampler
@@ -24,11 +26,11 @@ class DataLoaderBase(DataLoader):
             validation_split,
             alpha)
 
-        self.init_kwargs = {
+        init_kwargs = {
             'dataset': dataset,
             'num_workers': num_workers
         }
-        super().__init__(batch_sampler=self.sampler, **self.init_kwargs)
+        super().__init__(batch_sampler=self.sampler, **init_kwargs)
 
     def _setup_samplers(self, dataset, batch_size, epoch_size, validation_split, alpha):
         # get sampler & indices to use for validation
@@ -72,17 +74,23 @@ class DataLoaderBase(DataLoader):
         if self.valid_sampler is None:
             return None
         else:
-            return DataLoader(batch_sampler=self.valid_sampler, **self.init_kwargs)
+            dataset = copy.deepcopy(self.dataset)
+            dataset.train = False
+            init_kwargs = {
+                'dataset': dataset,
+                'num_workers': self.num_workers
+            }
+            return DataLoader(batch_sampler=self.valid_sampler, **init_kwargs)
 
 
 class PngDataLoader(DataLoaderBase):
 
-    def __init__(self, data_dir, batch_size, epoch_size, validation_split, num_workers, img_size,
+    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
                  train=True, alpha=None, verbose=0):
         transform = InplacePngTransforms(train, img_size)
         dataset = PngDataset(data_dir, transform, train=train)
 
-        super().__init__(dataset, batch_size, epoch_size, validation_split, num_workers,
+        super().__init__(dataset, batch_size, None, validation_split, num_workers,
                          train=train, alpha=alpha, verbose=verbose)
 
 
@@ -90,8 +98,9 @@ class NpyDataLoader(DataLoaderBase):
 
     def __init__(self, data_dir, batch_size, epoch_size, validation_split, num_workers, img_size,
                  train=True, alpha=None, verbose=0):
-        transform = HeavyNpyTransforms(train, img_size)
-        dataset = NpyDataset(data_dir, transform, train=train)
+        train_tsfm = HeavyNpyTransforms(True, img_size)
+        test_tsfm  = MediumNpyTransforms(False, img_size)
+        dataset = NpyDataset(data_dir, train_tsfm, test_tsfm, train=train)
 
         super().__init__(dataset, batch_size, epoch_size, validation_split, num_workers,
                          train=train, alpha=alpha, verbose=verbose)

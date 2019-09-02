@@ -93,7 +93,7 @@ def load_config(filename):
 def verbose_config_name(config):
     short_name = config['short_name']
     arch = config['arch']['type']
-    loss = config['loss']['type']
+    loss = config['loss']
     optim = config['optimizer']['type']
     lr = config['optimizer']['args']['lr']
     return '-'.join([short_name, arch, loss, optim, f'lr={lr}'])

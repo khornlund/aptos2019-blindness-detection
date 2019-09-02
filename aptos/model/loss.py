@@ -10,7 +10,7 @@ def ce_loss(output, target):
 
 
 def mse_loss(output, target):
-    return F.mse_loss(output.squeeze(1), target.to(torch.float))
+    return F.mse_loss(output.squeeze(1), target)
 
 
 def l1_loss(output, target):

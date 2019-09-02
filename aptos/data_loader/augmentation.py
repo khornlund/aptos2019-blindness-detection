@@ -43,6 +43,8 @@ class MediumNpyTransforms(AugmentationBase):
     def build_transforms(self):
         return T.Compose([
             T.ToPILImage(),
+            T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),
             T.RandomRotation(degrees=180),
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
             T.ToTensor(),
@@ -63,6 +65,8 @@ class HeavyNpyTransforms(AugmentationBase):
     def build_transforms(self):
         return T.Compose([
             T.ToPILImage(),
+            T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),
             T.RandomAffine(
                 degrees=180,
                 translate=(0.07, 0.07),

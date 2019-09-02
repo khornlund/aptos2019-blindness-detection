@@ -65,7 +65,8 @@ class Trainer(BaseTrainer):
             means = torch.zeros_like(target)
             noise = torch.normal(mean=means, std=self.noise_std)
             # noise = noise.to(self.device)
-            # self.logger.info(f'Noise: {noise}')
+            # self.logger.info(f'Target: {target.type()}')
+            # self.logger.info(f'Noise: {noise.type()}')
             loss = self.loss(output, target + noise)
             loss.backward()
             self.optimizer.step()
@@ -126,7 +127,7 @@ class Trainer(BaseTrainer):
         targets = np.zeros(len(self.valid_data_loader.batch_sampler.sampler))
         with torch.no_grad():
             for bidx, (data, target) in enumerate(self.valid_data_loader):
-                data, target = data.to(self.device), target.to(self.device)
+                data, target = data.to(self.device), target.float().to(self.device)
                 output = self.model(data)
                 loss = self.loss(output, target)
                 total_val_loss += loss.item()
@@ -138,6 +139,10 @@ class Trainer(BaseTrainer):
         total_val_metrics = self._eval_metrics(outputs, targets)
         total_val_loss /= len(self.valid_data_loader)
         self.writer.add_scalar('total_loss', total_val_loss)
+
+        if epoch == 1:  # only log images once to save time
+            self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+
         return {
             'val_loss': total_val_loss,
             'val_metrics': total_val_metrics

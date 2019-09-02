@@ -21,7 +21,7 @@ data_loader:
     validation_split: 0.20
     img_size: 256
     train: true
-    alpha: 0.9
+    alpha: 0.7
     verbose: 2
 
 metrics:
@@ -30,12 +30,7 @@ metrics:
 - accuracy
 - mse
 
-loss:
-  type: RobustLossGeneral
-  args:
-    alpha: 0.05
-    scale: 0.1
-    reduction: mean
+loss: mse_loss
 
 optimizer:
   type: Ranger

@@ -15,13 +15,13 @@ data_loader:
   type: NpyDataLoader
   args:
     batch_size: 40
-    epoch_size: 500
+    epoch_size: 700
     data_dir: data/preprocessed/diabetic-retinopathy-detection
     num_workers: 16
     validation_split: 0.10
     img_size: 256
     train: true
-    alpha: 0.9
+    alpha: 0.8
     verbose: 2
 
 metrics:
@@ -30,12 +30,7 @@ metrics:
 - accuracy
 - mse
 
-loss:
-  type: RobustLossGeneral
-  args:
-    alpha: 0.1
-    scale: 0.1
-    reduction: mean
+loss: mse_loss
 
 optimizer:
   type: Ranger
@@ -49,11 +44,11 @@ lr_scheduler:
   type: CosineAnnealingScheduler
   args:
     start_lr: 0.0005
-    start_anneal: 2
-    n_epochs: 100
+    start_anneal: 5
+    n_epochs: 50
 
 training:
-  epochs: 100
+  epochs: 50
   noise_std: 0.10
   save_period: 5
   tensorboard: true
