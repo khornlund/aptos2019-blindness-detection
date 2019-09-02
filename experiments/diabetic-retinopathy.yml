@@ -15,12 +15,13 @@ data_loader:
   type: NpyDataLoader
   args:
     batch_size: 40
+    epoch_size: 500
     data_dir: data/preprocessed/diabetic-retinopathy-detection
     num_workers: 16
-    validation_split: 0.20
+    validation_split: 0.10
     img_size: 256
     train: true
-    alpha: 0.8
+    alpha: 0.9
     verbose: 2
 
 metrics:
@@ -49,10 +50,10 @@ lr_scheduler:
   args:
     start_lr: 0.0005
     start_anneal: 2
-    n_epochs: 50
+    n_epochs: 100
 
 training:
-  epochs: 50
+  epochs: 100
   noise_std: 0.10
   save_period: 5
   tensorboard: true

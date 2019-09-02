@@ -1,7 +1,7 @@
 short_name: aptos
 n_gpu: 1
 save_dir: saved/
-seed: 123456
+seed: 1234
 
 arch:
   type: EffNet
@@ -15,12 +15,13 @@ data_loader:
   type: NpyDataLoader
   args:
     batch_size: 40
+    epoch_size: 100
     data_dir: data/preprocessed
     num_workers: 16
     validation_split: 0.20
     img_size: 256
     train: true
-    alpha: 0.8
+    alpha: 0.9
     verbose: 2
 
 metrics:
@@ -32,7 +33,7 @@ metrics:
 loss:
   type: RobustLossGeneral
   args:
-    alpha: 0.1
+    alpha: 0.05
     scale: 0.1
     reduction: mean
 
@@ -40,7 +41,7 @@ optimizer:
   type: Ranger
   args:
     lr: 0.0003
-    b1: 0.90
+    b1: 0.95
     N_sma_threshhold: 4
     weight_decay: 0.0005
 
@@ -52,7 +53,7 @@ lr_scheduler:
     n_epochs: 20
 
 training:
-  epochs: 50
+  epochs: 20
   noise_std: 0.10
   save_period: 1
   tensorboard: true

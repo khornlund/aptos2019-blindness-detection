@@ -15,7 +15,7 @@ class SamplerFactory:
     def __init__(self, verbose=0):
         self.logger = setup_logger(self, verbose)
 
-    def get(self, df, candidate_idx, batch_size, alpha):
+    def get(self, df, candidate_idx, batch_size, n_batches, alpha):
         """
         Parameters
         ----------
@@ -28,6 +28,9 @@ class SamplerFactory:
 
         batch_size : int
             The batch size to use.
+
+        n_batches : int
+            The number of batches per epoch.
 
         alpha : numeric in range [0, 1]
             Weighting term used to determine weights of each class in each batch.
@@ -59,7 +62,7 @@ class SamplerFactory:
         self.logger.info(f'Sample population class distribution: {original_weights}')
 
         weights = self.balance_weights(uniform_weights, original_weights, alpha)
-        class_samples_per_batch, n_batches = self.batch_statistics(weights, class_sizes, batch_size)
+        class_samples_per_batch = self.batch_statistics(weights, class_sizes, batch_size, n_batches)
 
         return ClassWeightedBatchSampler(class_samples_per_batch, class_idxs, n_batches)
 
@@ -70,7 +73,7 @@ class SamplerFactory:
         self.logger.info(f'Target batch class distribution {weights} using alpha={alpha}')
         return weights
 
-    def batch_statistics(self, weights, class_sizes, batch_size):
+    def batch_statistics(self, weights, class_sizes, batch_size, n_batches):
         """
         Calculates the number of samples of each class to include in each batch, and the number
         of batches required to use all the data in an epoch.
@@ -85,18 +88,17 @@ class SamplerFactory:
         assert class_samples_per_batch.sum() == batch_size
 
         proportions_of_class_per_batch = class_samples_per_batch / batch_size
-        self.logger.info(f'Actual batch class distribution {proportions_of_class_per_batch}')
+        self.logger.info(f'Rounded batch class distribution {proportions_of_class_per_batch}')
 
         proportions_of_samples_per_batch = class_samples_per_batch / class_sizes
-        n_batches = math.ceil(1 / proportions_of_samples_per_batch.min())
 
         self.logger.info(f'Expecting {class_samples_per_batch} samples of each class per batch, '
                          f'over {n_batches} batches of size {batch_size}')
 
         oversample_rates = proportions_of_samples_per_batch * n_batches
-        self.logger.info(f'Oversampling rates: {oversample_rates}')
+        self.logger.info(f'Sampling rates: {oversample_rates}')
 
-        return class_samples_per_batch, n_batches
+        return class_samples_per_batch
 
 
 class ClassWeightedBatchSampler(BatchSampler):

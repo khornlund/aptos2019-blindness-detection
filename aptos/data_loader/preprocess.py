@@ -18,7 +18,7 @@ class ImgProcessor:
             self.read_png,
             self.crop_box,
             self.resize,
-            self.pad_square
+            self.crop_circle
         ])
 
     def __call__(self, filename):
@@ -51,23 +51,16 @@ class ImgProcessor:
         dim = (self.img_width, new_height)
         return cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
 
-    def pad_square(self, img):
+    def crop_circle(self, img):
         """
-        Pad the top/bottom of the image with zeros to make it square.
+        Apply a circular crop to remove edge effects.
         """
-        try:
-            H, W, C = img.shape
-            assert H <= W
-            if H == W:
-                return img
-            pad_amount = W - H
-            top_pad = pad_amount // 2
-            btm_pad = pad_amount - top_pad
-            return cv2.copyMakeBorder(img, top_pad, btm_pad, 0, 0, cv2.BORDER_CONSTANT, value=0)
-        except Exception as ex:
-            msg = f'Caught exception: {ex}'
-            print(msg)
-            raise Exception(msg)
+        H, W, C = img.shape
+        circle_img = np.zeros((H, W), dtype=np.uint8)
+        x, y = W // 2, H // 2
+        r = int(W * 0.95 / 2)  # cut a small amount off
+        cv2.circle(circle_img, (x, y), r, 1, thickness=-1)
+        return cv2.bitwise_and(img, img, mask=circle_img)
 
     # -- unused --
 
@@ -92,15 +85,20 @@ class ImgProcessor:
     #     gb = cv2.GaussianBlur(img, ksize, sigmaX)
     #     return cv2.addWeighted(img, alpha, gb, beta, gamma)
 
-    # def crop_circle(self, img):
+    # def pad_square(self, img):
     #     """
-    #     Apply a circular crop to remove edge effects.
+    #     Pad the top/bottom of the image with zeros to make it square.
     #     """
-    #     b = np.zeros(img.shape, dtype=np.uint8)
-    #     cv2.circle(
-    #         b,
-    #         (img.shape[1] // 2, img.shape[0] // 2),
-    #         int(self.radius_size * 0.92),
-    #         (255, 255, 255),
-    #         thickness=-1)
-    #     return img * b  # + 128 * (1 - b)
+    #     try:
+    #         H, W, C = img.shape
+    #         assert H <= W
+    #         if H == W:
+    #             return img
+    #         pad_amount = W - H
+    #         top_pad = pad_amount // 2
+    #         btm_pad = pad_amount - top_pad
+    #         return cv2.copyMakeBorder(img, top_pad, btm_pad, 0, 0, cv2.BORDER_CONSTANT, value=0)
+    #     except Exception as ex:
+    #         msg = f'Caught exception: {ex}'
+    #         print(msg)
+    #         raise Exception(msg)

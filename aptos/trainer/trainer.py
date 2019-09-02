@@ -54,6 +54,8 @@ class Trainer(BaseTrainer):
         total_loss = 0
         outputs = np.zeros(self.data_loader.n_samples)
         targets = np.zeros(self.data_loader.n_samples)
+        assert outputs.shape[0] == len(self.data_loader) * self.data_loader.batch_sampler.batch_size
+
         for bidx, (data, target) in enumerate(self.data_loader):
             data, target = data.to(self.device), target.float().to(self.device)
             # self.logger.info(f'data: {data.size()}, target: {target.size()}')
@@ -120,8 +122,8 @@ class Trainer(BaseTrainer):
         """
         self.model.eval()
         total_val_loss = 0
-        outputs = np.zeros(self.data_loader.n_samples)
-        targets = np.zeros(self.data_loader.n_samples)
+        outputs = np.zeros(len(self.valid_data_loader.batch_sampler.sampler))
+        targets = np.zeros(len(self.valid_data_loader.batch_sampler.sampler))
         with torch.no_grad():
             for bidx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)

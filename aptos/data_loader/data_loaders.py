@@ -11,7 +11,7 @@ from .sampler import SamplerFactory
 
 class DataLoaderBase(DataLoader):
 
-    def __init__(self, dataset, batch_size, validation_split, num_workers,
+    def __init__(self, dataset, batch_size, epoch_size, validation_split, num_workers,
                  train=True, alpha=None, verbose=0):
         self.verbose = verbose
         self.logger = setup_logger(self, self.verbose)
@@ -20,6 +20,7 @@ class DataLoaderBase(DataLoader):
         self.sampler, self.valid_sampler = self._setup_samplers(
             dataset,
             batch_size,
+            epoch_size,
             validation_split,
             alpha)
 
@@ -29,12 +30,13 @@ class DataLoaderBase(DataLoader):
         }
         super().__init__(batch_sampler=self.sampler, **self.init_kwargs)
 
-    def _setup_samplers(self, dataset, batch_size, validation_split, alpha):
+    def _setup_samplers(self, dataset, batch_size, epoch_size, validation_split, alpha):
         # get sampler & indices to use for validation
         valid_sampler, valid_idx = self._setup_validation(dataset, batch_size, validation_split)
 
         # get sampler & indices to use for training/testing
-        train_sampler, n_samples = self._setup_train(dataset, batch_size, alpha, valid_idx)
+        train_sampler, n_samples = self._setup_train(
+            dataset, batch_size, epoch_size, alpha, valid_idx)
         self.n_samples = n_samples
 
         return (train_sampler, valid_sampler)
@@ -52,7 +54,7 @@ class DataLoaderBase(DataLoader):
         self.logger.info(f'Validation class distribution: {valid_targets}')
         return valid_sampler, valid_idx
 
-    def _setup_train(self, dataset, batch_size, alpha, exclude_idx):
+    def _setup_train(self, dataset, batch_size, epoch_size, alpha, exclude_idx):
         all_idx = np.arange(len(dataset))
         train_idx = [i for i in all_idx if i not in exclude_idx]
 
@@ -63,7 +65,7 @@ class DataLoaderBase(DataLoader):
             return sampler, len(train_idx)
 
         factory = SamplerFactory(self.verbose)
-        sampler = factory.get(dataset.df, train_idx, batch_size, alpha)
+        sampler = factory.get(dataset.df, train_idx, batch_size, epoch_size, alpha)
         return sampler, len(sampler) * batch_size
 
     def split_validation(self):
@@ -75,21 +77,21 @@ class DataLoaderBase(DataLoader):
 
 class PngDataLoader(DataLoaderBase):
 
-    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+    def __init__(self, data_dir, batch_size, epoch_size, validation_split, num_workers, img_size,
                  train=True, alpha=None, verbose=0):
         transform = InplacePngTransforms(train, img_size)
         dataset = PngDataset(data_dir, transform, train=train)
 
-        super().__init__(dataset, batch_size, validation_split, num_workers,
+        super().__init__(dataset, batch_size, epoch_size, validation_split, num_workers,
                          train=train, alpha=alpha, verbose=verbose)
 
 
 class NpyDataLoader(DataLoaderBase):
 
-    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+    def __init__(self, data_dir, batch_size, epoch_size, validation_split, num_workers, img_size,
                  train=True, alpha=None, verbose=0):
         transform = HeavyNpyTransforms(train, img_size)
         dataset = NpyDataset(data_dir, transform, train=train)
 
-        super().__init__(dataset, batch_size, validation_split, num_workers,
+        super().__init__(dataset, batch_size, epoch_size, validation_split, num_workers,
                          train=train, alpha=alpha, verbose=verbose)
