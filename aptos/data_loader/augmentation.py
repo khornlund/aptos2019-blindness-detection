@@ -32,6 +32,9 @@ class InplacePngTransforms(AugmentationBase):
 
 class MediumNpyTransforms(AugmentationBase):
 
+    MEANS = [0.5, 0.5, 0.5]
+    STDS  = [0.075, 0.075, 0.075]
+
     def __init__(self, train, img_size):
         self.img_size = img_size
         super().__init__(train)
@@ -41,13 +44,9 @@ class MediumNpyTransforms(AugmentationBase):
             T.ToPILImage(),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
-            # T.RandomAffine(
-            #     degrees=180,
-            #     fillcolor=(128, 128, 128)
-            # ),
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
             T.ToTensor(),
-            T.Normalize([0.5, 0.5, 0.5], [1, 1, 1]),
+            T.Normalize(self.MEANS, self.STDS),
         ])
 
 
@@ -81,6 +80,9 @@ class HeavyNpyTransforms(AugmentationBase):
 
 class MixupNpyTransforms(AugmentationBase):
 
+    MEANS = [0.5, 0.5, 0.5]
+    STDS  = [0.075, 0.075, 0.075]
+
     def __init__(self, train, img_size):
         self.img_size = img_size
         super().__init__(train)
@@ -98,10 +100,10 @@ class MixupNpyTransforms(AugmentationBase):
             ),
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
             T.ToTensor(),
-            T.Normalize([0.5, 0.5, 0.5], [1, 1, 1]),
+            T.Normalize(self.MEANS, self.STDS),
             T.RandomErasing(
-                p=0.5,
-                scale=(0.05, 0.10),
-                ratio=(0.4, 2.5)
+                p=0.20,
+                scale=(0.03, 0.08),
+                ratio=(0.5, 2.0)
             )
         ])

@@ -109,7 +109,7 @@ class NpyDataLoader(DataLoaderBase):
 
 class MixupDataLoader(DataLoader):
 
-    def __init__(self, data_dir, batch_size, validation_split, num_workers, img_size,
+    def __init__(self, data_dir, batch_size, epoch_size, validation_split, num_workers, img_size,
                  alpha=None, verbose=0):
         self.logger = setup_logger(self, verbose)
 
@@ -145,7 +145,7 @@ class MixupDataLoader(DataLoader):
             return sampler, len(train_idx)
 
         factory = SamplerFactory(verbose)
-        sampler = factory.get(dataset_train.df, train_idx, batch_size, alpha)
+        sampler = factory.get(dataset_train.df, train_idx, batch_size, epoch_size, alpha)
         self.n_samples = len(sampler) * batch_size
 
         super().__init__(dataset_train, batch_sampler=sampler, num_workers=num_workers)
