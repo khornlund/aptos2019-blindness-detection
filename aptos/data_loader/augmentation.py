@@ -32,10 +32,6 @@ class InplacePngTransforms(AugmentationBase):
 
 class MediumNpyTransforms(AugmentationBase):
 
-    # ImageNet
-    MEANS = [0.485, 0.456, 0.406]
-    STDS  = [0.229, 0.224, 0.225]
-
     def __init__(self, train, img_size):
         self.img_size = img_size
         super().__init__(train)
@@ -45,18 +41,17 @@ class MediumNpyTransforms(AugmentationBase):
             T.ToPILImage(),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
-            T.RandomRotation(degrees=180),
+            # T.RandomAffine(
+            #     degrees=180,
+            #     fillcolor=(128, 128, 128)
+            # ),
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
             T.ToTensor(),
-            # T.Normalize(self.MEANS, self.STDS)
+            T.Normalize([0.5, 0.5, 0.5], [1, 1, 1]),
         ])
 
 
 class HeavyNpyTransforms(AugmentationBase):
-
-    # ImageNet
-    MEANS = [0.485, 0.456, 0.406]
-    STDS  = [0.229, 0.224, 0.225]
 
     def __init__(self, train, img_size):
         self.img_size = img_size
@@ -79,6 +74,34 @@ class HeavyNpyTransforms(AugmentationBase):
             T.RandomErasing(
                 p=0.8,
                 scale=(0.05, 0.15),
+                ratio=(0.4, 2.5)
+            )
+        ])
+
+
+class MixupNpyTransforms(AugmentationBase):
+
+    def __init__(self, train, img_size):
+        self.img_size = img_size
+        super().__init__(train)
+
+    def build_transforms(self):
+        return T.Compose([
+            T.ToPILImage(),
+            T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),
+            T.RandomAffine(
+                degrees=180,
+                translate=(0.07, 0.0),
+                shear=(0.05),
+                fillcolor=(128, 128, 128)
+            ),
+            T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
+            T.ToTensor(),
+            T.Normalize([0.5, 0.5, 0.5], [1, 1, 1]),
+            T.RandomErasing(
+                p=0.5,
+                scale=(0.05, 0.10),
                 ratio=(0.4, 2.5)
             )
         ])

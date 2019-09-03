@@ -61,13 +61,7 @@ class Trainer(BaseTrainer):
             # self.logger.info(f'data: {data.size()}, target: {target.size()}')
             self.optimizer.zero_grad()
             output = self.model(data)
-            # self.logger.info(f'output: {output.size()}')
-            means = torch.zeros_like(target)
-            noise = torch.normal(mean=means, std=self.noise_std)
-            # noise = noise.to(self.device)
-            # self.logger.info(f'Target: {target.type()}')
-            # self.logger.info(f'Noise: {noise.type()}')
-            loss = self.loss(output, target + noise)
+            loss = self.loss(output, target)
             loss.backward()
             self.optimizer.step()
 
@@ -81,8 +75,6 @@ class Trainer(BaseTrainer):
 
         # tensorboard logging
         self.writer.set_step(epoch - 1)
-        # self.writer.add_scalar('loss/alpha', self.loss.alpha())
-        # self.writer.add_scalar('loss/scale', self.loss.scale())
         if epoch == 1:  # only log images once to save time
             self.writer.add_image(
                 'input', make_grid(data.cpu(), nrow=8, normalize=True))
