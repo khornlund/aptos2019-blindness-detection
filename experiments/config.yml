@@ -1,7 +1,7 @@
 short_name: aptos
 n_gpu: 1
 save_dir: saved/
-seed: 1234567
+seed: 12345677
 
 arch:
   type: EffNet
@@ -17,11 +17,11 @@ data_loader:
     batch_size: 40
     epoch_size: 100
     data_dir: data/preprocessed
-    num_workers: 16
+    num_workers: 12
     validation_split: 0.10
     img_size: 256
     train: true
-    alpha: 0.8
+    alpha: 0.25
     verbose: 2
 
 metrics:
@@ -44,15 +44,15 @@ lr_scheduler:
   type: CosineAnnealingScheduler
   args:
     start_lr: 0.0002
-    start_anneal: 2
-    n_epochs: 15
+    start_anneal: 5
+    n_epochs: 20
 
 training:
-  epochs: 15
+  epochs: 20
   noise_std: 0.10
   save_period: 1
   tensorboard: true
-  verbose: 1
+  verbose: 2
 
 testing:
   data_dir: data/raw

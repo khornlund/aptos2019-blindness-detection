@@ -12,12 +12,12 @@ arch:
     verbose: 0
 
 data_loader:
-  type: NpyDataLoader
+  type: MixupDataLoader
   args:
-    batch_size: 40
-    epoch_size: 1000
+    batch_size: 16
+    epoch_size: 16
     data_dir: data/preprocessed/diabetic-retinopathy-detection
-    num_workers: 12
+    num_workers: 8
     validation_split: 0.10
     img_size: 256
     train: true
