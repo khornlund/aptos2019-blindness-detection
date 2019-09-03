@@ -68,9 +68,9 @@ class HeavyNpyTransforms(AugmentationBase):
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
             T.RandomAffine(
-                degrees=180,
-                translate=(0.07, 0.07),
-                shear=(0.07)
+                degrees=45,
+                translate=(0.07, 0.0),
+                shear=(0.05)
             ),
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
             T.ColorJitter(

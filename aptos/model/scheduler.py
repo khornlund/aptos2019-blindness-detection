@@ -120,7 +120,7 @@ class CosineAnnealingScheduler(CustomScheduler):
         length = n_epochs - start_anneal
 
         # rolloff to zero
-        rolloff_lrs = rolloff(length, magnitude=start_lr)
+        rolloff_lrs = rolloff(length, loc_factor=0.3, scale_factor=0.15, magnitude=start_lr)
         lrs[start_anneal:] = rolloff_lrs
         return lrs
 

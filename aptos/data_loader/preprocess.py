@@ -18,11 +18,17 @@ class ImgProcessor:
             self.read_png,
             self.crop_box,
             self.resize,
+            self.sharpen,
             self.crop_circle
         ])
 
     def __call__(self, filename):
-        return self.sequential(filename)
+        try:
+            return self.sequential(filename)
+        except Exception as ex:
+            msg = f'Caught exception: {ex}'
+            print(msg)
+            raise Exception(msg)
 
     def read_png(self, filename):
         """
@@ -51,6 +57,18 @@ class ImgProcessor:
         dim = (self.img_width, new_height)
         return cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
 
+    def sharpen(self, img):
+        """
+        Sharpen the image by subtracting a gaussian blur.
+        """
+        ksize = (0, 0)
+        sigmaX = self.img_width // 60
+        alpha = 4
+        beta = -4
+        gamma = 255 // 2 + 1
+        gb = cv2.GaussianBlur(img, ksize, sigmaX)
+        return cv2.addWeighted(img, alpha, gb, beta, gamma)
+
     def crop_circle(self, img):
         """
         Apply a circular crop to remove edge effects.
@@ -58,9 +76,10 @@ class ImgProcessor:
         H, W, C = img.shape
         circle_img = np.zeros((H, W), dtype=np.uint8)
         x, y = W // 2, H // 2
-        r = int(W * 0.95 / 2)  # cut a small amount off
+        r = int(W * 0.90 / 2)  # cut a small amount off
         cv2.circle(circle_img, (x, y), r, 1, thickness=-1)
-        return cv2.bitwise_and(img, img, mask=circle_img)
+        circle_img = np.dstack([circle_img, circle_img, circle_img])
+        return img * circle_img + 128 * (1 - circle_img)
 
     # -- unused --
 
@@ -72,18 +91,6 @@ class ImgProcessor:
     #     r = (x > x.mean() / 10).sum() / 2
     #     s = self.radius_size / r
     #     return cv2.resize(img, None, fx=s, fy=s)
-
-    # def sharpen(self, img):
-    #     """
-    #     Sharpen the image by subtracting a gaussian blur.
-    #     """
-    #     ksize = (0, 0)
-    #     sigmaX = self.radius_size // 30
-    #     alpha = 4
-    #     beta = -4
-    #     gamma = 255 // 2 + 1
-    #     gb = cv2.GaussianBlur(img, ksize, sigmaX)
-    #     return cv2.addWeighted(img, alpha, gb, beta, gamma)
 
     # def pad_square(self, img):
     #     """

@@ -4,9 +4,9 @@ save_dir: saved/
 seed: 1234
 
 arch:
-  type: EffNetMaxAvg
+  type: EffNet
   args:
-    model: b2
+    model: b3
     num_classes: 1
     pretrained: true
     verbose: 0
@@ -14,10 +14,10 @@ arch:
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 40
-    epoch_size: 700
+    batch_size: 32
+    epoch_size: 1000
     data_dir: data/preprocessed/diabetic-retinopathy-detection
-    num_workers: 16
+    num_workers: 12
     validation_split: 0.10
     img_size: 256
     train: true
@@ -35,7 +35,7 @@ loss: mse_loss
 optimizer:
   type: Ranger
   args:
-    lr: 0.0005
+    lr: 0.0004
     b1: 0.90
     N_sma_threshhold: 4
     weight_decay: 0.0005
@@ -43,12 +43,12 @@ optimizer:
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.0005
-    start_anneal: 5
-    n_epochs: 40
+    start_lr: 0.0004
+    start_anneal: 10
+    n_epochs: 50
 
 training:
-  epochs: 40
+  epochs: 50
   noise_std: 0.10
   save_period: 5
   tensorboard: true

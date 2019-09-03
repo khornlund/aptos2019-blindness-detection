@@ -132,12 +132,12 @@ class EfficientNetMaxAvg(EfficientNet):
         super().__init__(blocks_args=blocks_args, global_params=global_params)
 
         fc = nn.Sequential(OrderedDict([
-            ('bn1', nn.BatchNorm1d(self.model._bn1.num_features)),
+            ('bn1', nn.BatchNorm1d(self.model._bn1.num_features * 2)),
             ('drop1', nn.Dropout(p=self._dropout)),
-            ('linear1', nn.Linear(1024, 512)),
+            ('linear1', nn.Linear(self.model._bn1.num_features * 2, 512)),
             ('mish', Mish()),
             ('bn2', nn.BatchNorm1d(512)),
-            ('drop2', nn.Dropout(p=self._dropout)),
+            ('drop2', nn.Dropout(p=self._dropout / 2)),
             ('linear2', nn.Linear(512, self._global_params.num_classes))
         ]))
 

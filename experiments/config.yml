@@ -1,10 +1,10 @@
 short_name: aptos
 n_gpu: 1
 save_dir: saved/
-seed: 1234
+seed: 1234567
 
 arch:
-  type: EffNet
+  type: EffNetMaxAvg
   args:
     model: b2
     num_classes: 1
@@ -14,14 +14,14 @@ arch:
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 40
+    batch_size: 32
     epoch_size: 100
     data_dir: data/preprocessed
     num_workers: 16
     validation_split: 0.10
     img_size: 256
     train: true
-    alpha: 0.5
+    alpha: 0.2
     verbose: 2
 
 metrics:

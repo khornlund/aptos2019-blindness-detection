@@ -167,13 +167,7 @@ class Runner:
                 preds = torch.zeros(len(data_loader.dataset))
                 for i, data in enumerate(tqdm(data_loader)):
                     data = data.to(device)
-                    if torch.isnan(data).any().item():
-                        msg = f'NaN input: {data}'
-                        raise Exception(msg)
                     output = model(data)
-                    if torch.isnan(output).any().item():
-                        msg = f'NaN output: {output}'
-                        raise Exception(msg)
                     output = output.detach().cpu()
                     batch_size = output.shape[0]
                     preds[i * batch_size:(i + 1) * batch_size] = output.squeeze(1)

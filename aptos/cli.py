@@ -92,11 +92,12 @@ def load_config(filename):
 
 def verbose_config_name(config):
     short_name = config['short_name']
-    arch = config['arch']['type']
+    arch = config['arch']['type'] + config['arch']['args']['model']
     loss = config['loss']
     optim = config['optimizer']['type']
     lr = config['optimizer']['args']['lr']
-    return '-'.join([short_name, arch, loss, optim, f'lr={lr}'])
+    alpha = config['data_loader']['args']['alpha']
+    return '-'.join([short_name, arch, loss, optim, f'lr={lr}', f'a={alpha}'])
 
 
 if __name__ == '__main__':
