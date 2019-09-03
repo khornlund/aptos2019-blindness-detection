@@ -48,7 +48,7 @@ class MediumNpyTransforms(AugmentationBase):
             T.RandomRotation(degrees=180),
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
             T.ToTensor(),
-            T.Normalize(self.MEANS, self.STDS)
+            # T.Normalize(self.MEANS, self.STDS)
         ])
 
 
@@ -68,17 +68,14 @@ class HeavyNpyTransforms(AugmentationBase):
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
             T.RandomAffine(
-                degrees=45,
+                degrees=180,
                 translate=(0.07, 0.0),
-                shear=(0.05)
+                shear=(0.05),
+                fillcolor=(128, 128, 128)
             ),
             T.RandomResizedCrop(self.img_size, scale=(0.8, 1)),
-            T.ColorJitter(
-                brightness=0.20,
-                contrast=0.20,
-                saturation=0.20),
             T.ToTensor(),
-            T.Normalize(self.MEANS, self.STDS),
+            T.Normalize([0.5, 0.5, 0.5], [1, 1, 1]),
             T.RandomErasing(
                 p=0.8,
                 scale=(0.05, 0.15),

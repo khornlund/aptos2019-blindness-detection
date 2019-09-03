@@ -6,7 +6,7 @@ seed: 1234
 arch:
   type: EffNet
   args:
-    model: b3
+    model: b2
     num_classes: 1
     pretrained: true
     verbose: 0
@@ -14,7 +14,7 @@ arch:
 data_loader:
   type: NpyDataLoader
   args:
-    batch_size: 32
+    batch_size: 40
     epoch_size: 1000
     data_dir: data/preprocessed/diabetic-retinopathy-detection
     num_workers: 12
