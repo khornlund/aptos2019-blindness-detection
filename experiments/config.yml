@@ -1,4 +1,4 @@
-short_name: aptos
+short_name: aptos-mixup
 n_gpu: 1
 save_dir: saved/
 seed: 1234567
@@ -12,7 +12,7 @@ arch:
     verbose: 0
 
 data_loader:
-  type: NpyDataLoader
+  type: MixupDataLoader
   args:
     batch_size: 40
     epoch_size: 100
@@ -20,7 +20,6 @@ data_loader:
     num_workers: 16
     validation_split: 0.10
     img_size: 256
-    train: true
     alpha: 0.8
     verbose: 2
 
@@ -44,11 +43,11 @@ lr_scheduler:
   type: CosineAnnealingScheduler
   args:
     start_lr: 0.0002
-    start_anneal: 2
-    n_epochs: 15
+    start_anneal: 5
+    n_epochs: 20
 
 training:
-  epochs: 15
+  epochs: 20
   noise_std: 0.10
   save_period: 1
   tensorboard: true

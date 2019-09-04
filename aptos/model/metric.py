@@ -18,13 +18,13 @@ def quadratic_weighted_kappa(output, target):
 
 
 def conf_matrix(output, target):
-    cm = confusion_matrix(target, round_clip(output), labels=LABELS)
+    cm = confusion_matrix(round_clip(target), round_clip(output), labels=LABELS)
     df = pd.DataFrame(cm)
     return pd.concat([df], keys=['label'], names=['pred'])
 
 
 def accuracy(output, target):
-    return (round_clip(output) == target).mean()
+    return (round_clip(output) == round_clip(target)).mean()
 
 
 def mse(output, target):

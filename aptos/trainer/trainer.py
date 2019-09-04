@@ -58,7 +58,7 @@ class Trainer(BaseTrainer):
 
         for bidx, (data, target) in enumerate(self.data_loader):
             data, target = data.to(self.device), target.float().to(self.device)
-            # self.logger.info(f'data: {data.size()}, target: {target.size()}')
+            # self.logger.info(f'target: {target}')
             self.optimizer.zero_grad()
             output = self.model(data)
             loss = self.loss(output, target)

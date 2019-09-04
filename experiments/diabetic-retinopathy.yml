@@ -1,4 +1,4 @@
-short_name: diabetic-retinopathy
+short_name: diabetic-retinopathy-mixup
 n_gpu: 1
 save_dir: saved/
 seed: 1234
@@ -12,7 +12,7 @@ arch:
     verbose: 0
 
 data_loader:
-  type: NpyDataLoader
+  type: MixupDataLoader
   args:
     batch_size: 40
     epoch_size: 1000
@@ -20,7 +20,6 @@ data_loader:
     num_workers: 12
     validation_split: 0.10
     img_size: 256
-    train: true
     alpha: 0.8
     verbose: 2
 

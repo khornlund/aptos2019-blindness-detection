@@ -134,7 +134,7 @@ class MixupNpyDataset(Dataset):
     def mixup(self, X1, X2, y1, y2):
         alpha = self.random_beta()
         beta = 1 - alpha
-        X = Image.blend(X1, X2, alpha)
+        X = (alpha * X1) + (beta * X2)
         y = (alpha * y1) + (beta * y2)
         return X, y
 
