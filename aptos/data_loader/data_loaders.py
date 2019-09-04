@@ -110,7 +110,7 @@ class NpyDataLoader(DataLoaderBase):
 class MixupDataLoader(DataLoader):
 
     def __init__(self, data_dir, batch_size, epoch_size, validation_split, num_workers, img_size,
-                 alpha=None, verbose=0):
+                 mixup=0.4, alpha=None, verbose=0):
         self.logger = setup_logger(self, verbose)
 
         if validation_split > 0:
@@ -134,7 +134,7 @@ class MixupDataLoader(DataLoader):
             valid_idx = []
 
         train_tsfm = MixupNpyTransforms(train=True, img_size=img_size)
-        dataset_train = MixupNpyDataset(data_dir, train_tsfm)
+        dataset_train = MixupNpyDataset(data_dir, train_tsfm, alpha=mixup, train=True)
         all_idx = np.arange(len(dataset_train))
         train_idx = [i for i in all_idx if i not in valid_idx]
 

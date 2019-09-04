@@ -30,6 +30,7 @@ class EffNet(BaseModel):
             self.model = EfficientNet.from_name(
                 model_name,
                 override_params={'num_classes': num_classes})
+
         self.logger.info(f'<init>: \n{self}')
 
     def forward(self, x):

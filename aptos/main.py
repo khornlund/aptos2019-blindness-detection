@@ -41,9 +41,10 @@ class Runner:
         metrics = [getattr(module_metric, met) for met in config['metrics']]
 
         self.logger.debug('Building optimizer and lr scheduler')
-        trainable_params = filter(lambda p: p.requires_grad, model.parameters())
+        trainable_params = list(filter(lambda p: p.requires_grad, model.parameters()))
         optimizer = get_instance(module_optim, 'optimizer', config, trainable_params)
         lr_scheduler = get_instance(module_sched, 'lr_scheduler', config, optimizer)
+        self.logger.info(f'Training {len(trainable_params)} params')
 
         # opt_level = config['apex']
         # self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')

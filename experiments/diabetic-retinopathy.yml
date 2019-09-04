@@ -20,7 +20,8 @@ data_loader:
     num_workers: 12
     validation_split: 0.10
     img_size: 256
-    alpha: 0.8
+    alpha: 0.7
+    mixup: 0.45
     verbose: 2
 
 metrics:
@@ -34,7 +35,7 @@ loss: mse_loss
 optimizer:
   type: Ranger
   args:
-    lr: 0.0004
+    lr: 0.001
     b1: 0.90
     N_sma_threshhold: 4
     weight_decay: 0.0005
@@ -42,12 +43,12 @@ optimizer:
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.0004
-    start_anneal: 10
-    n_epochs: 50
+    start_lr: 0.0008
+    start_anneal: 5
+    n_epochs: 100
 
 training:
-  epochs: 50
+  epochs: 100
   noise_std: 0.10
   save_period: 5
   tensorboard: true

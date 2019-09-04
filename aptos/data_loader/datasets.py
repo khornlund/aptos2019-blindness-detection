@@ -93,11 +93,12 @@ class MixupNpyDataset(Dataset):
     N_CLASSES = 5
     train_csv = 'train.csv'
 
-    def __init__(self, data_dir, transform, alpha=0.4):
+    def __init__(self, data_dir, transform, alpha=0.4, train=True):
         self.images_dir = Path(data_dir) / 'train_images'
         self.labels_filename = Path(data_dir) / self.train_csv
 
         self.transform = transform
+        self.train = train
 
         self._df = pd.read_csv(self.labels_filename)
         self._df['filename'] = self._df['id_code'].apply(lambda x: self.images_dir / f'{x}.npy')
@@ -140,10 +141,14 @@ class MixupNpyDataset(Dataset):
 
     def __getitem__(self, idx1):
         y1 = self.df.iloc[idx1]['diagnosis']
-        y2 = self.random_neighbour_class(y1)
 
-        idx2 = self.random_choice(self.class_idxs[y2])
-        assert y2 == self.df.iloc[idx2]['diagnosis']
+        if self.train:
+            y2 = self.random_neighbour_class(y1)
+            idx2 = self.random_choice(self.class_idxs[y2])
+            assert y2 == self.df.iloc[idx2]['diagnosis']
+        else:  # mixup with self
+            y2 = y1
+            idx2 = idx1
 
         f1 = self.df.iloc[idx1]['filename']
         f2 = self.df.iloc[idx2]['filename']
