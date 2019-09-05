@@ -1,7 +1,7 @@
 short_name: aptos-mixup
 n_gpu: 1
 save_dir: saved/
-seed: 1234
+seed: 12345
 
 arch:
   type: EffNet
@@ -21,6 +21,7 @@ data_loader:
     validation_split: 0.10
     img_size: 256
     alpha: 0.5
+    mixup: 0.5
     verbose: 2
 
 metrics:
@@ -34,7 +35,7 @@ loss: mse_loss
 optimizer:
   type: Ranger
   args:
-    lr: 0.002
+    lr: 0.001
     b1: 0.90
     N_sma_threshhold: 4
     weight_decay: 0.0005
@@ -42,7 +43,7 @@ optimizer:
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.002
+    start_lr: 0.001
     start_anneal: 2
     n_epochs: 15
 

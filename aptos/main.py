@@ -41,14 +41,9 @@ class Runner:
         metrics = [getattr(module_metric, met) for met in config['metrics']]
 
         self.logger.debug('Building optimizer and lr scheduler')
-        trainable_params = list(filter(lambda p: p.requires_grad, model.parameters()))
+        trainable_params = filter(lambda p: p.requires_grad, model.parameters())
         optimizer = get_instance(module_optim, 'optimizer', config, trainable_params)
         lr_scheduler = get_instance(module_sched, 'lr_scheduler', config, optimizer)
-        self.logger.info(f'Training {len(trainable_params)} params')
-
-        # opt_level = config['apex']
-        # self.logger.debug(f'Setting apex mixed precision to level: {opt_level}')
-        # model, optimizer = amp.initialize(model, optimizer, opt_level=opt_level)
 
         self.logger.debug('Initialising trainer')
         trainer = Trainer(model, loss, metrics, optimizer,
@@ -103,7 +98,7 @@ class Runner:
                     data = data.to(device)
                     output = model(data).cpu()
                     batch_size = output.shape[0]
-                    batch_preds = output.squeeze(1).clamp(min=0, max=4)
+                    batch_preds = output.squeeze(1).clamp(min=-0.4, max=4.4)
                     preds[i * batch_size:(i + 1) * batch_size] = batch_preds
 
                 # add column for this iteration of predictions

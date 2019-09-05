@@ -3,6 +3,7 @@ import itertools as it
 
 import torch
 from torch.optim.optimizer import Optimizer
+from torch.optim import Adam
 
 
 class Ranger(Optimizer):

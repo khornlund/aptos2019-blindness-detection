@@ -44,13 +44,13 @@ class MediumNpyTransforms(AugmentationBase):
             T.ToPILImage(),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
-            T.RandomAffine(
-                degrees=180,
-                translate=(0.07, 0.0),
-                shear=(0.05),
-                fillcolor=(128, 128, 128)
-            ),
-            T.RandomResizedCrop(self.img_size, scale=(0.8, 0.95)),
+            # T.RandomAffine(
+            #     degrees=180,
+            #     translate=(0.07, 0.0),
+            #     shear=(0.05),
+            #     fillcolor=(128, 128, 128)
+            # ),
+            T.RandomResizedCrop(self.img_size, scale=(0.9, 0.95)),
             T.ToTensor(),
             T.Normalize(self.MEANS, self.STDS),
         ])

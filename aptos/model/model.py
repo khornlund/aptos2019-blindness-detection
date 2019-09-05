@@ -31,6 +31,10 @@ class EffNet(BaseModel):
                 model_name,
                 override_params={'num_classes': num_classes})
 
+        # for name, w in self.model.named_parameters():
+        #     if '_fc' not in name:
+        #         w.requires_grad = False
+
         self.logger.info(f'<init>: \n{self}')
 
     def forward(self, x):
