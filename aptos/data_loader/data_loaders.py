@@ -134,7 +134,7 @@ class MixupDataLoader(DataLoader):
             valid_idx = []
 
         train_tsfm = MixupNpyTransforms(train=True, img_size=img_size)
-        dataset_train = MixupNpyDataset(data_dir, train_tsfm, alpha=mixup, train=True)
+        dataset_train = MixupNpyDataset(data_dir, train_tsfm, valid_idx, alpha=mixup, train=True)
         all_idx = np.arange(len(dataset_train))
         train_idx = [i for i in all_idx if i not in valid_idx]
 

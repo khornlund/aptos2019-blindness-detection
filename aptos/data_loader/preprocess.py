@@ -10,7 +10,7 @@ class ImgProcessor:
     This class is responsible for preprocessing the images, eg. crop, sharpen, resize, normalise.
     """
 
-    def __init__(self, crop_tol=12, img_width=512, verbose=0):
+    def __init__(self, crop_tol=12, img_width=600, verbose=0):
         self.logger = setup_logger(self, verbose)
         self.crop_tol = crop_tol
         self.img_width = img_width
@@ -18,7 +18,7 @@ class ImgProcessor:
             self.read_png,
             self.crop_box,
             self.resize,
-            self.sharpen,
+            # self.sharpen,
             self.crop_circle
         ])
 
@@ -57,17 +57,17 @@ class ImgProcessor:
         dim = (self.img_width, new_height)
         return cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
 
-    def sharpen(self, img):
-        """
-        Sharpen the image by subtracting a gaussian blur.
-        """
-        ksize = (0, 0)
-        sigmaX = self.img_width // 60
-        alpha = 4
-        beta = -4
-        gamma = 255 // 2 + 1
-        gb = cv2.GaussianBlur(img, ksize, sigmaX)
-        return cv2.addWeighted(img, alpha, gb, beta, gamma)
+    # def sharpen(self, img):
+    #     """
+    #     Sharpen the image by subtracting a gaussian blur.
+    #     """
+    #     ksize = (0, 0)
+    #     sigmaX = self.img_width // 60
+    #     alpha = 4
+    #     beta = -4
+    #     gamma = 255 // 2 + 1
+    #     gb = cv2.GaussianBlur(img, ksize, sigmaX)
+    #     return cv2.addWeighted(img, alpha, gb, beta, gamma)
 
     def crop_circle(self, img):
         """

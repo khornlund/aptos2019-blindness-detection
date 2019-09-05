@@ -93,7 +93,7 @@ class MixupNpyDataset(Dataset):
     N_CLASSES = 5
     train_csv = 'train.csv'
 
-    def __init__(self, data_dir, transform, alpha=0.4, train=True):
+    def __init__(self, data_dir, transform, exclude_idx, alpha=0.4, train=True):
         self.images_dir = Path(data_dir) / 'train_images'
         self.labels_filename = Path(data_dir) / self.train_csv
 
@@ -104,7 +104,8 @@ class MixupNpyDataset(Dataset):
         self._df['filename'] = self._df['id_code'].apply(lambda x: self.images_dir / f'{x}.npy')
 
         self.class_idxs = [
-            self.df.loc[self.df['diagnosis'] == c, :].index.values for c in range(self.N_CLASSES)
+            [x for x in self.df.loc[self.df['diagnosis'] == c, :].index.values
+                if x not in exclude_idx] for c in range(self.N_CLASSES)
         ]
 
         self.beta_dist = Beta(torch.tensor([alpha]), torch.tensor([alpha]))
