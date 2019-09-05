@@ -32,9 +32,8 @@ class InplacePngTransforms(AugmentationBase):
 
 class MediumNpyTransforms(AugmentationBase):
 
-    # ImageNet
-    MEANS = [0.485, 0.456, 0.406]
-    STDS  = [0.229, 0.224, 0.225]
+    MEANS = [0.6193246715450339, 0.5676388422333433, 0.5303413730576545]
+    STDS  = [0.12337693906775953, 0.09914381078783173, 0.06671092824144163]
 
     def __init__(self, train, img_size):
         self.img_size = img_size
@@ -45,7 +44,7 @@ class MediumNpyTransforms(AugmentationBase):
             T.ToPILImage(),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
-            T.RandomResizedCrop(self.img_size, scale=(0.9, 0.95)),
+            T.RandomResizedCrop(self.img_size, scale=(0.9, 0.98)),
             T.ToTensor(),
             T.Normalize(self.MEANS, self.STDS),
         ])
@@ -81,9 +80,8 @@ class HeavyNpyTransforms(AugmentationBase):
 
 class MixupNpyTransforms(AugmentationBase):
 
-    # ImageNet
-    MEANS = [0.485, 0.456, 0.406]
-    STDS  = [0.229, 0.224, 0.225]
+    MEANS = [0.6193246715450339, 0.5676388422333433, 0.5303413730576545]
+    STDS  = [0.12337693906775953, 0.09914381078783173, 0.06671092824144163]
 
     def __init__(self, train, img_size):
         self.img_size = img_size
@@ -94,13 +92,7 @@ class MixupNpyTransforms(AugmentationBase):
             T.ToPILImage(),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
-            T.RandomAffine(
-                degrees=180,
-                translate=(0.07, 0.0),
-                shear=(0.05),
-                fillcolor=(128, 128, 128)
-            ),
-            T.RandomResizedCrop(self.img_size, scale=(0.8, 0.95)),
+            T.RandomResizedCrop(self.img_size, scale=(0.9, 0.98)),
             T.ToTensor(),
             T.Normalize(self.MEANS, self.STDS),
             T.RandomErasing(
