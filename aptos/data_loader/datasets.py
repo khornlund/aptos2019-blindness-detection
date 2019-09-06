@@ -5,7 +5,6 @@ import numpy as np
 import torch
 from torch.distributions.beta import Beta
 from torch.utils.data import Dataset
-from PIL import Image
 
 
 class PngDataset(Dataset):
@@ -121,11 +120,18 @@ class MixupNpyDataset(Dataset):
         return items[torch.randint(len(items), (1,))[0].item()]
 
     def random_beta(self):
-        return self.beta_dist.sample().item()
+        """
+        Return one-sided sample from beta distribution
+        """
+        sample = self.beta_dist.sample().item()
+        if sample < 0.5:
+            return sample
+        sample -= 1
+        return sample * -1
 
     def random_neighbour_class(self, c):
         if c == 0:
-            return c if self.random_float() > 0.5 else c + 1
+            return c if self.random_float() < 0.8 else c + 1
         if c == 4:
             return c if self.random_float() > 0.5 else c - 1
         return c - 1 if self.random_float() > 0.5 else c + 1

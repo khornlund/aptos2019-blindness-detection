@@ -17,8 +17,8 @@ class ImgProcessor:
         self.sequential = T.Compose([
             self.read_png,
             self.crop_black,
-            self.sharpen,
-            self.crop_circle,
+            # self.sharpen,
+            # self.crop_circle,
             self.crop_square,
             self.resize
         ])
@@ -46,37 +46,37 @@ class ImgProcessor:
         y1, x1 = coords.max(axis=0)
         return img[y0:y1, x0:x1]
 
-    def sharpen(self, img):
-        """
-        Sharpen the image by subtracting a gaussian blur.
-        """
-        H, W, C = img.shape
-        ksize = (0, 0)
-        sigmaX = W // 60
-        alpha = 4
-        beta = -4
-        gamma = 255 // 2 + 1
-        gb = cv2.GaussianBlur(img, ksize, sigmaX)
-        return cv2.addWeighted(img, alpha, gb, beta, gamma)
+    # def sharpen(self, img):
+    #     """
+    #     Sharpen the image by subtracting a gaussian blur.
+    #     """
+    #     H, W, C = img.shape
+    #     ksize = (0, 0)
+    #     sigmaX = W // 60
+    #     alpha = 4
+    #     beta = -4
+    #     gamma = 255 // 2 + 1
+    #     gb = cv2.GaussianBlur(img, ksize, sigmaX)
+    #     return cv2.addWeighted(img, alpha, gb, beta, gamma)
 
-    def crop_circle(self, img):
-        """
-        Apply a circular crop to remove edge effects.
-        """
-        H, W, C = img.shape
-        circle_img = np.zeros((H, W), dtype=np.uint8)
-        x, y = W // 2, H // 2
-        r = int(W * 0.92 / 2)  # cut a small amount off
-        cv2.circle(circle_img, (x, y), r, 1, thickness=-1)
-        circle_img = np.dstack([circle_img, circle_img, circle_img])
-        return img * circle_img + 128 * (1 - circle_img)
+    # def crop_circle(self, img):
+    #     """
+    #     Apply a circular crop to remove edge effects.
+    #     """
+    #     H, W, C = img.shape
+    #     circle_img = np.zeros((H, W), dtype=np.uint8)
+    #     x, y = W // 2, H // 2
+    #     r = int(W * 0.92 / 2)  # cut a small amount off
+    #     cv2.circle(circle_img, (x, y), r, 1, thickness=-1)
+    #     circle_img = np.dstack([circle_img, circle_img, circle_img])
+    #     return img * circle_img + 128 * (1 - circle_img)
 
     def crop_square(self, img):
         """
         Crop the image to a square (cutting off sides of a circular image).
         """
         H, W, C = img.shape
-        crop_size = min(int(W * 0.85), H)
+        crop_size = min(int(W * 0.87), H)
         if W <= crop_size:
             x0 = 0
             x1 = W

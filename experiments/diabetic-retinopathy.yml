@@ -20,8 +20,8 @@ data_loader:
     num_workers: 12
     validation_split: 0.10
     img_size: 256
-    alpha: 0.7
-    mixup: 0.45
+    alpha: 0.8
+    mixup: 0.42
     verbose: 2
 
 metrics:
@@ -35,7 +35,7 @@ loss: mse_loss
 optimizer:
   type: Ranger
   args:
-    lr: 0.001
+    lr: 0.0008
     b1: 0.90
     N_sma_threshhold: 4
     weight_decay: 0.0005
@@ -43,7 +43,7 @@ optimizer:
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.0008
+    start_lr: 0.0006
     start_anneal: 5
     n_epochs: 100
 

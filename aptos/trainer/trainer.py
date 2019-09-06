@@ -57,7 +57,7 @@ class Trainer(BaseTrainer):
         assert outputs.shape[0] == len(self.data_loader) * self.data_loader.batch_sampler.batch_size
 
         for bidx, (data, target) in enumerate(self.data_loader):
-            data, target = data.to(self.device), target.float().to(self.device)
+            data, target = data.to(self.device), target.to(self.device).float()
             # self.logger.info(f'target: {target}')
             self.optimizer.zero_grad()
             output = self.model(data)
@@ -119,7 +119,7 @@ class Trainer(BaseTrainer):
         targets = np.zeros(len(self.valid_data_loader.batch_sampler.sampler))
         with torch.no_grad():
             for bidx, (data, target) in enumerate(self.valid_data_loader):
-                data, target = data.to(self.device), target.float().to(self.device)
+                data, target = data.to(self.device), target.to(self.device).float()
                 output = self.model(data)
                 loss = self.loss(output, target)
                 total_val_loss += loss.item()
