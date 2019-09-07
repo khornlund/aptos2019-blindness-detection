@@ -1,4 +1,4 @@
-short_name: diabetic-retinopathy-mixup
+short_name: diabetic-retinopathy
 n_gpu: 1
 save_dir: saved/
 seed: 1234
@@ -12,16 +12,15 @@ arch:
     verbose: 0
 
 data_loader:
-  type: MixupDataLoader
+  type: NpyDataLoader
   args:
     batch_size: 40
-    epoch_size: 1000
+    epoch_size: 800
     data_dir: data/preprocessed/diabetic-retinopathy-detection
     num_workers: 12
     validation_split: 0.10
     img_size: 256
     alpha: 0.8
-    mixup: 0.42
     verbose: 2
 
 metrics:
@@ -35,7 +34,7 @@ loss: mse_loss
 optimizer:
   type: Ranger
   args:
-    lr: 0.0008
+    lr: 0.001
     b1: 0.90
     N_sma_threshhold: 4
     weight_decay: 0.0005
@@ -43,13 +42,13 @@ optimizer:
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.0006
-    start_anneal: 5
-    n_epochs: 100
+    start_lr: 0.001
+    start_anneal: 10
+    n_epochs: 150
 
 training:
-  epochs: 100
-  noise_std: 0.10
+  epochs: 150
+  noise_std: 0.15
   save_period: 5
   tensorboard: true
   verbose: 1

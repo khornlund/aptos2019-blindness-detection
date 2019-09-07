@@ -1,7 +1,7 @@
-short_name: aptos-mixup
+short_name: aptos
 n_gpu: 1
 save_dir: saved/
-seed: 123456
+seed: 12346
 
 arch:
   type: EffNet
@@ -12,16 +12,15 @@ arch:
     verbose: 0
 
 data_loader:
-  type: MixupDataLoader
+  type: NpyDataLoader
   args:
     batch_size: 40
-    epoch_size: 100
+    epoch_size: 60
     data_dir: data/preprocessed
     num_workers: 16
-    validation_split: 0.10
+    validation_split: 0.05
     img_size: 256
-    alpha: 0.8
-    mixup: 0.4
+    alpha: 0.7
     verbose: 2
 
 metrics:
@@ -35,18 +34,18 @@ loss: mse_loss
 optimizer:
   type: Ranger
   args:
-    lr: 0.001
-    weight_decay: 0.0003
+    lr: 0.0008
+    weight_decay: 0.0005
 
 lr_scheduler:
   type: CosineAnnealingScheduler
   args:
-    start_lr: 0.001
-    start_anneal: 2
-    n_epochs: 15
+    start_lr: 0.0005
+    start_anneal: 4
+    n_epochs: 20
 
 training:
-  epochs: 15
+  epochs: 20
   noise_std: 0.10
   save_period: 1
   tensorboard: true

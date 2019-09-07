@@ -52,29 +52,32 @@ class MediumNpyTransforms(AugmentationBase):
 
 class HeavyNpyTransforms(AugmentationBase):
 
+    MEANS = [0.6193246715450339, 0.5676388422333433, 0.5303413730576545]
+    STDS  = [0.12337693906775953, 0.09914381078783173, 0.06671092824144163]
+
     def __init__(self, train, img_size):
         self.img_size = img_size
         super().__init__(train)
 
     def build_transforms(self):
         return T.Compose([
-            # T.ToPILImage(),
-            # T.RandomHorizontalFlip(),
-            # T.RandomVerticalFlip(),
+            T.ToPILImage(),
+            T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),
             # T.RandomAffine(
-            #     degrees=180,
-            #     translate=(0.07, 0.0),
-            #     shear=(0.05),
-            #     fillcolor=(128, 128, 128)
+            #     degrees=5,
+            #     translate=(0.03, 0.0),
+            #     # shear=(0.05),
+            #     # fillcolor=(128, 128, 128)
             # ),
-            # T.RandomResizedCrop(self.img_size, scale=(0.8, 0.95)),
-            # T.ToTensor(),
-            # T.Normalize([0.5, 0.5, 0.5], [1, 1, 1]),
-            # T.RandomErasing(
-            #     p=0.8,
-            #     scale=(0.05, 0.15),
-            #     ratio=(0.4, 2.5)
-            # )
+            T.RandomResizedCrop(self.img_size, scale=(0.8, 0.95)),
+            T.ToTensor(),
+            T.Normalize(self.MEANS, self.STDS),
+            T.RandomErasing(
+                p=0.8,
+                scale=(0.05, 0.15),
+                ratio=(0.4, 2.5)
+            )
         ])
 
 
