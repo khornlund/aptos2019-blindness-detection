@@ -23,9 +23,14 @@ according to a parameter ``alpha``.
 By choosing a value for ``alpha`` between 0 and 1, you can linearly change the sample distribution
 between the true distribution (``alpha = 0``), and a uniform distribution (``alpha = 1``).
 
-.. image:: ./resources/sample-distributions-20190-data.png
+.. image:: ./resources/sample-distributions-2019-data.png
 
+Note the extreme imbalance for the 2015 data.
 
+.. image:: ./resources/sample-distributions-2015-data.png
+
+Typically for training on the 2015 data I used an ``alpha`` value of 0.8, and for fine-tuning on
+the 2019 data I used alpha values in the range 0.2 to 0.8.
 
 User Guide
 ==========
