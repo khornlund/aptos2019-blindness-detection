@@ -18,8 +18,10 @@ Sampling Strategy
 The data for this competition had quite imbalanced classes, so I wrote a custom ``PyTorch``
 ``BatchSampler`` to help with this problem.
 
+See ``aptos.data_loader.sampler`` for implementation details.
+
 Class Balancing
----------------
+~~~~~~~~~~~~~~~
 Based on the choice of an ``alpha`` parameter in ``[0, 1]`` the sampler would adjust the sample
 distribution to be between true distribution (``alpha = 0``), and a uniform distribution
 (``alpha = 1``).
@@ -36,10 +38,10 @@ Typically for training on the 2015 data I used an ``alpha`` value of 0.8, and fo
 the 2019 data I used alpha values in the range 0.2 to 0.8.
 
 Standardised Batches
---------------------
+~~~~~~~~~~~~~~~~~~~~
 Each sample generated would contain exactly the specified proportion of classes.
 
-Here are a few sample batches of labels from a sampler with `alpha = 0.5` and `batch_size = 32`
+Here are a few sample batches of labels from a sampler with ``alpha = 0.5`` and ``batch_size = 32``
 
 .. code::
 
@@ -55,7 +57,9 @@ Here are a few sample batches of labels from a sampler with `alpha = 0.5` and `b
     Classes: [0, 4, 0, 0, 0, 3, 3, 2, 0, 4, 2, 3, 0, 3, 2, 0, 0, 1, 2, 2, 0, 1, 0, 0, 4, 0, 2, 1, 1, 4, 0, 0]
     Counts: {0: 14, 1: 4, 2: 6, 3: 4, 4: 4}
 
-Note that the class counts are the same for each batch.
+Note that the class counts are the same for each batch. I found this helped training converge
+faster, and my models generalised better. It was also a way to create diversity of models trained
+with the same architecture - much like how people use varying image sizes.
 
 User Guide
 ==========
