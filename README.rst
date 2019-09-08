@@ -5,10 +5,14 @@
 .. contents:: Table of Contents
    :depth: 3
 
-Report
-======
+Competition Report
+==================
 
-I received a silver medal for coming in `89th place (top 3%) <https://www.kaggle.com/c/aptos2019-blindness-detection/leaderboard>`_.
+This competition was a lot of fun and taught me a lot.
+
+Results
+-------
+Top 3% | 89/2987 | Silver Medal
 
 Overview
 --------
@@ -25,7 +29,7 @@ Network + Training Loop
 
 Architecture
 ~~~~~~~~~~~~
-I primarily used the ``EfficientNet-b2``. I experimented with the ``b3`` but didn't notice a
+I primarily used ``EfficientNet-b2``. I experimented with the ``b3`` but didn't notice a
 significant improvement, and larger models were limited by using my GPU at home.
 
 I tried using `Apex <https://github.com/NVIDIA/apex>`_ to train using half-precision but had
@@ -36,13 +40,18 @@ FastAI's half precision functionality. In future I'll investigate this more.
 
 Loss
 ~~~~
-I experimented with using
-`Robust Loss <https://github.com/jonbarron/robust_loss_pytorch>`_, which was introduced at CVPR
-recently. I found this didn't perform as well as ``MSE``.
+Participants had a choice in this competition to approach it as classification or regression
+problem. I had best results treating it as a regression problem with ``MSE``.
 
-I discovered `Wassertein metric <https://en.wikipedia.org/wiki/Wasserstein_metric>`_ AKA
-`Earth Mover's Distance <https://en.wikipedia.org/wiki/Earth_mover%27s_distance>`_, and wrote
-my own implementation of it to use a loss function. However, it didn't perform better than ``MSE``.
+Other things I tried:
+
+1. `Robust Loss <https://github.com/jonbarron/robust_loss_pytorch>`_, which was introduced at CVPR
+recently.
+
+2. `Wassertein metric <https://en.wikipedia.org/wiki/Wasserstein_metric>`_ AKA
+`Earth Mover's Distance <https://en.wikipedia.org/wiki/Earth_mover%27s_distance>`_. I couldn't find
+a good implementation of it so I wrote my own. It seemed to work - but didn't perform better than
+``MSE``.
 
 Optimizer
 ~~~~~~~~~
@@ -58,7 +67,9 @@ I pretrained on the train + test data from 2015, before fine-tuning on the 2019 
 
 Preprocessing & Augmentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-I used a variety of preprocessing and augmentation techniques.
+I used a variety of preprocessing and augmentation techniques, outlined below.
+
+While I experimented a little with image size, almost all models I trained used ``256x256`` images.
 
 Ben's Cropping
 **************
