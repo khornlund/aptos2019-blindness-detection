@@ -1,7 +1,6 @@
-=====
-aptos
-=====
-`<https://www.kaggle.com/c/aptos2019-blindness-detection/overview>`_
+===================================================================================================
+`Aptos 2019 Blindness Detection <https://www.kaggle.com/c/aptos2019-blindness-detection/overview>`_
+===================================================================================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -13,15 +12,18 @@ I came in `89th place (silver) <https://www.kaggle.com/c/aptos2019-blindness-det
 
 Below I'll detail some of the things I tried throughout the competition.
 
-.. image:: ./resources/sample-distributions-20190-data.png
+
 
 Class Balancing
 ---------------
 
-I wrote a custom `BatchSampler` to use with PyTorch, in order to over/under sample the data
-according to a parameter `alpha`.
+I wrote a custom ``BatchSampler`` to use with PyTorch, in order to over/under sample the data
+according to a parameter ``alpha``.
 
+By choosing a value for ``alpha`` between 0 and 1, you can linearly change the sample distribution
+between the true distribution (``alpha = 0``), and a uniform distribution (``alpha = 1``).
 
+.. image:: ./resources/sample-distributions-20190-data.png
 
 
 
