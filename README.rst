@@ -6,14 +6,36 @@ aptos
 .. contents:: Table of Contents
    :depth: 2
 
+Report
+======
+
+I came in `89th place (silver) <https://www.kaggle.com/c/aptos2019-blindness-detection/leaderboard>`_.
+
+Below I'll detail some of the things I tried throughout the competition.
+
+.. image:: https://raw.githubusercontent.com/khornlund/aptos2019-blindness-detection/resources/sample-distributions-20190-data.png?sanitize=true
+
+Class Balancing
+---------------
+
+I wrote a custom `BatchSampler` to use with PyTorch, in order to over/under sample the data
+according to a parameter `alpha`.
+
+
+
+
+
+User Guide
+==========
+
 Requirements
-============
+------------
 * Python >= 3.6
 * PyTorch >= 1.1
 * Tensorboard >= 1.4
 
 Folder Structure
-================
+----------------
 
 ::
 
@@ -56,18 +78,12 @@ Folder Structure
 
 
 Usage
-=====
+-----
 
 .. code-block:: bash
 
   $ conda env create --file environment.yml
   $ conda activate aptos
-
-You can run the tests using:
-
-.. code-block:: bash
-
-  $ pytest tests
 
 See ``notebooks/preprocess.ipynb`` to preprocess the data for training.
 
@@ -79,7 +95,7 @@ To start training, run:
 
 
 Tensorboard Visualization
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 This template supports `<https://pytorch.org/docs/stable/tensorboard.html>`_ visualization.
 
 1. Run training
@@ -92,19 +108,3 @@ This template supports `<https://pytorch.org/docs/stable/tensorboard.html>`_ vis
     `http://localhost:6006` (if clicking the link doesn't work, paste this into your browser)
 
 
-TODO
-====
-
-1. Additional data sources eg. `<http://www.adcis.net/en/third-party/messidor/>`_
-2. Alternative data processing techniques
-3. Alternative augmentation techniques
-4. Is robust loss better the mse? Better than classification?
-5. Model arch: can we improve EfficientNet?
-
-
-Acknowledgments
-===============
-This template is inspired by
-
-  1. `<https://github.com/victoresque/pytorch-template>`_
-  2. `<https://github.com/daemonslayer/cookiecutter-pytorch>`_
