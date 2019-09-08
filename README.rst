@@ -13,7 +13,7 @@ I came in `89th place (silver) <https://www.kaggle.com/c/aptos2019-blindness-det
 
 Below I'll detail some of the things I tried throughout the competition.
 
-.. image:: https://raw.githubusercontent.com/khornlund/aptos2019-blindness-detection/resources/sample-distributions-20190-data.png?sanitize=true
+.. image:: ./resources/sample-distributions-20190-data.png
 
 Class Balancing
 ---------------
