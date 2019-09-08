@@ -25,7 +25,7 @@ Network + Training Loop
 
 Architecture
 ~~~~~~~~~~~~
-I used the ``EfficientNet-b2`` primarily. I experimented with the ``b3`` but didn't notice a
+I primarily used the ``EfficientNet-b2``. I experimented with the ``b3`` but didn't notice a
 significant improvement, and larger models were limited by using my GPU at home.
 
 I tried using `Apex <https://github.com/NVIDIA/apex>`_ to train using half-precision but had
@@ -40,12 +40,16 @@ I experimented with using
 `Robust Loss <https://github.com/jonbarron/robust_loss_pytorch>`_, which was introduced at CVPR
 recently. I found this didn't perform as well as ``MSE``.
 
+I discovered `Wassertein metric <https://en.wikipedia.org/wiki/Wasserstein_metric>`_ AKA
+`Earth Mover's Distance <https://en.wikipedia.org/wiki/Earth_mover%27s_distance>`_, and wrote
+my own implementation of it to use a loss function. However, it didn't perform better than ``MSE``.
+
 Optimizer
 ~~~~~~~~~
 I experimented with ``Adam``, ``RMSProp``, and ``SGD`` early on and found ``Adam`` to perform best.
 
 Later on I switched to using
-``Ranger <https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer>`_, which is
+`Ranger <https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer>`_, which is
 ``RAdam`` + ``LookAhead``.
 
 Data
@@ -54,8 +58,19 @@ I pretrained on the train + test data from 2015, before fine-tuning on the 2019 
 
 Preprocessing & Augmentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-I used a variety of preprocessing an augmentation techniques, which I'll outline in more detail
-below.
+I used a variety of preprocessing and augmentation techniques.
+
+Ben's Cropping
+**************
+I started out by using a technique similar to the
+`winner of the 2015 competition <https://www.kaggle.com/c/diabetic-retinopathy-detection/discussion/15801#latest-370950>`_.
+
+<insert image>
+
+
+Mixup
+*****
+I thought Mixup might help smooth the discrete labels, and help with the regression approach.
 
 Sampling Strategy
 ~~~~~~~~~~~~~~~~~
