@@ -8,20 +8,23 @@
 Report
 ======
 
-I came in `89th place (silver) <https://www.kaggle.com/c/aptos2019-blindness-detection/leaderboard>`_.
+I received a silver medal for coming in `89th place (top 3%) <https://www.kaggle.com/c/aptos2019-blindness-detection/leaderboard>`_.
 
 Below I'll detail some of the things I tried throughout the competition.
 
 
+Sampling Strategy
+-----------------
+The data for this competition had quite imbalanced classes, so I wrote a custom ``PyTorch``
+``BatchSampler`` to help with this problem.
 
 Class Balancing
 ---------------
+Based on the choice of an ``alpha`` parameter in ``[0, 1]`` the sampler would adjust the sample
+distribution to be between true distribution (``alpha = 0``), and a uniform distribution
+(``alpha = 1``).
 
-I wrote a custom ``BatchSampler`` to use with PyTorch, in order to over/under sample the data
-according to a parameter ``alpha``.
-
-By choosing a value for ``alpha`` between 0 and 1, you can linearly change the sample distribution
-between the true distribution (``alpha = 0``), and a uniform distribution (``alpha = 1``).
+Overrepresented classes would be undersampled, and underrepresented classes oversampled.
 
 .. image:: ./resources/sample-distributions-2019-data.png
 
@@ -31,6 +34,28 @@ Note the extreme imbalance for the 2015 data.
 
 Typically for training on the 2015 data I used an ``alpha`` value of 0.8, and for fine-tuning on
 the 2019 data I used alpha values in the range 0.2 to 0.8.
+
+Standardised Batches
+--------------------
+Each sample generated would contain exactly the specified proportion of classes.
+
+Here are a few sample batches of labels from a sampler with `alpha = 0.5` and `batch_size = 32`
+
+.. code::
+
+    Batch: 0
+    Classes: [1, 0, 0, 0, 2, 4, 0, 2, 0, 0, 3, 2, 1, 0, 2, 0, 0, 3, 0, 0, 4, 4, 0, 2, 1, 3, 3, 1, 2, 0, 0, 4]
+    Counts: {0: 14, 1: 4, 2: 6, 3: 4, 4: 4}
+
+    Batch: 1
+    Classes: [4, 1, 1, 2, 0, 0, 0, 4, 2, 4, 0, 3, 1, 3, 0, 0, 3, 2, 0, 2, 4, 2, 0, 0, 2, 3, 0, 1, 0, 0, 0, 0]
+    Counts: {0: 14, 1: 4, 2: 6, 3: 4, 4: 4}
+
+    Batch: 2
+    Classes: [0, 4, 0, 0, 0, 3, 3, 2, 0, 4, 2, 3, 0, 3, 2, 0, 0, 1, 2, 2, 0, 1, 0, 0, 4, 0, 2, 1, 1, 4, 0, 0]
+    Counts: {0: 14, 1: 4, 2: 6, 3: 4, 4: 4}
+
+Note that the class counts are the same for each batch.
 
 User Guide
 ==========
