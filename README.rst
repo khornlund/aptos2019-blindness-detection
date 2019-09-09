@@ -275,60 +275,118 @@ Folder Structure
   │    │   └── base_trainer.py - abstract base class for trainers
   │    │
   │    ├── data_loader/ - anything about data loading goes here
-  │    │   └── data_loaders.py
+  │    │   ├── augmentation.py
+  │    │   ├── data_loaders.py
+  │    │   ├── datasets.py
+  │    │   ├── preprocess.py
+  │    │   └── sampler.py
   │    │
   │    ├── model/ - models, losses, and metrics
   │    │   ├── loss.py
   │    │   ├── metric.py
-  │    │   └── model.py
+  │    │   ├── model.py
+  │    │   ├── optimizer.py
+  │    │   └── scheduler.py
   │    │
   │    ├── trainer/ - trainers
   │    │   └── trainer.py
   │    │
   │    └── utils/
+  │        ├── flatten.py - outputs codebase as a flat file for running in a kernel
   │        ├── logger.py - class for train logging
-  │        ├── visualization.py - class for Tensorboard visualization support
-  │        └── saving.py - manages pathing for saving models + logs
+  │        ├── saving.py - manages pathing for saving models + logs
+  │        ├── upload.py - uploads trained model to Kaggle using Kaggle API
+  │        └── visualization.py - class for Tensorboard visualization support
   │
   ├── logging.yml - logging configuration
   │
-  ├── data/ - directory for storing input data
+  ├── environment.yml - conda environment recipe
+  │
+  ├── data/ - directory for storing raw/processed data
   │
   ├── experiments/ - directory for storing configuration files
   │
+  ├── notebook/ - directory for jupyter notebooks
+  │
+  ├── reference/ - directory for reference documentation
+  │
+  ├── resources/ - directory for images to show in README
+  │
   ├── saved/ - directory for checkpoints and logs
   │
-  └── tests/ - tests folder
+  └── tests/ - directory for tests
 
 
 Usage
 -----
 
-.. code-block:: bash
+Setup
+~~~~~
 
-  $ conda env create --file environment.yml
-  $ conda activate aptos
+1. Create Anaconda environment:
 
-See ``notebooks/preprocess.ipynb`` to preprocess the data for training.
+    .. code-block:: bash
 
-To start training, run:
+        $ conda env create --file environment.yml
+        $ conda activate aptos
 
-.. code-block:: bash
+2. Download the data (you will need `Kaggle API <https://github.com/Kaggle/kaggle-api>`_ set up)
 
-  $ aptos train -c experiments/config.yml
+    Official competition data:
 
+    .. code-block:: bash
+
+        $ mkdir data/raw
+        $ cd data/raw
+        $ kaggle competitions download -c aptos2019-blindness-detection
+        $ unzip train_images.zip train_images/
+
+    2015 training data:
+
+    .. code-block:: bash
+
+        $ mkdir diabetic-retinopathy-detection
+        $ cd diabetic-retinopathy-detection
+        $ kaggle datasets download -d tanlikesmath/diabetic-retinopathy-resized
+        $ unzip resized_train_cropped.zip resized_train_cropped/
+
+    2015 test data:
+
+    .. code-block:: bash
+
+        $ kaggle datasets download -d benjaminwarner/resized-2015-2019-blindness-detection-images -f "resized test 15.zip"
+        $ kaggle datasets download -d benjaminwarner/resized-2015-2019-blindness-detection-images -f "labels.zip"
+        $ unzip "resized test 15.zip" resized_test/
+        $ unzip labels.zip
+        $ cp labels/testLabels15.csv testLabels.csv
+
+3. Preprocess the data. See ``notebooks/preprocess.ipynb``
+   and ``notebooks/preprocess-diabetic-retinopathy.ipynb``
+
+Training
+~~~~~~~~
+
+1. Create a config file eg. ``experiments/config.yml``
+
+2. Start training using your config:
+
+    .. code-block:: bash
+
+        $ aptos train -c experiments/config.yml
+
+3. Fine-tune as necessary:
+
+    .. code-block:: bash
+
+        $ aptos train -c experiments/config.yml -r path/to/your/model.pt
 
 Tensorboard Visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-This template supports `<https://pytorch.org/docs/stable/tensorboard.html>`_ visualization.
+This project supports `<https://pytorch.org/docs/stable/tensorboard.html>`_ visualization.
 
-1. Run training
+All runs are logged to the ``saved/`` folder by default. You can launch tensorboard using:
 
-    Set `tensorboard` option in config file true.
+.. code:: bash
 
-2. Open tensorboard server
-
-    Type `tensorboard --logdir saved/runs/` at the project root, then server will open at
-    `http://localhost:6006` (if clicking the link doesn't work, paste this into your browser)
-
+    $ tensorboard --logdir saved/
 
