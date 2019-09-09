@@ -8,11 +8,11 @@
 Competition Report
 ==================
 
-This competition was a lot of fun and taught me a lot.
+This competition was a lot of fun and gave me the opportunity to explore a variety of ML techniques.
 
 Results
 -------
-Top 3% | 89/2987 | Silver Medal
+89th/2987 | Top 3% | Silver Medal
 
 Overview
 --------
@@ -60,6 +60,14 @@ I experimented with ``Adam``, ``RMSProp``, and ``SGD`` early on and found ``Adam
 Later on I switched to using
 `Ranger <https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer>`_, which is
 ``RAdam`` + ``LookAhead``.
+
+LR Scheduler
+~~~~~~~~~~~~
+I implemented some custom LR schedulers and found Flat Cosine Annealing to work best:
+
+.. image:: ./resources/flat-cosine-annealing-scheduler.png
+.. image:: ./resources/slow-start-cosine-annealing-scheduler.png
+.. image:: ./resources/cyclical-decay-scheduler.png
 
 Data
 ----
