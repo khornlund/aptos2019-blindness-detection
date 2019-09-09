@@ -378,7 +378,7 @@ Training
 
    .. code-block:: bash
 
-      $ aptos train -c experiments/config.yml -r path/to/your/model.pt
+      $ aptos train -c experiments/config.yml -r path/to/trained/model.pt
 
 Tensorboard Visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -390,3 +390,7 @@ All runs are logged to the ``saved/`` folder by default. You can launch tensorbo
 
     $ tensorboard --logdir saved/
 
+Cookiecutter Template
+---------------------
+This project was generated using my
+`PyTorch Cookiecutter Template <https://github.com/khornlund/cookiecutter-pytorch>`_.
