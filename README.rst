@@ -2,13 +2,17 @@
 `Aptos 2019 Blindness Detection <https://www.kaggle.com/c/aptos2019-blindness-detection/overview>`_
 ===================================================================================================
 
-.. contents:: Table of Contents
+*"Millions of people suffer from diabetic retinopathy, the leading cause of blindness among working
+aged adults. Aravind Eye Hospital in India hopes to detect and prevent this disease among people
+living in rural areas where medical screening is difficult to conduct."*
+
+This competition was a lot of fun and gave me the opportunity to explore a variety of ML techniques.
+
+.. contents:: **Table of Contents**
    :depth: 3
 
 Competition Report
 ==================
-
-This competition was a lot of fun and gave me the opportunity to explore a variety of ML techniques.
 
 Results
 -------
@@ -34,12 +38,6 @@ significant improvement, and larger models were limited by using my GPU at home.
 
 I tried using `Apex <https://github.com/NVIDIA/apex>`_ to train using half-precision but had
 problems saving/loading models, and problems installing ``Apex`` in the Kaggle kernels.
-
-I was impressed people were able to use ``b5`` in the kernel with large batch size by using
-FastAI's half precision functionality.
-
-A lot of the winning submissions either used more powerful models, or much larger image sizes. I
-think I'll have to figure out how to get half-precision working in a kernel for future competitions.
 
 Loss
 ~~~~
@@ -73,6 +71,13 @@ I implemented some custom LR schedulers and found Flat Cosine Annealing to work 
 .. image:: ./resources/flat-cosine-annealing-scheduler.png
 .. image:: ./resources/slow-start-cosine-annealing-scheduler.png
 .. image:: ./resources/cyclical-decay-scheduler.png
+
+Noisy Labels
+~~~~~~~~~~~~
+I figured that with >80,000 images in the 2015 dataset and heavy augmentation I could train for
+many epochs. In order to guard against overfitting and smooth out the regression target labels,
+I added some normally distributed noise (mean=0, std=0.1) to the labels. I found this helped
+slightly although it was difficult to evaluate given the uncertainty around public LB scores.
 
 Data
 ----
@@ -108,7 +113,9 @@ I tried a simple circle crop, which led to my best performing single model
 Tight Crop
 **********
 The test set images looked quite different from the training set, so I tried a *tight* cropping
-method to try to make the training examples more similar to the test set.
+method to try to make the training examples more similar to the test set. I implemented this on the
+final day of the competition and didn't use a submission to evaluate it independently - I just took
+a chance and included it in my final ensemble.
 
 .. image:: ./resources/tightcrop.png
 
@@ -120,7 +127,8 @@ blend parameter from a Beta distribution (0.4, 0.4).
 
 I tried this with some different preprocessing techniques as shown below, but found it yielded
 poor results (Public 0.760, Private 0.908). Other contestants who tried mixup also reported poor
-results.
+results. Thinking about it now, the private LB score is actually not bad for a single model - I
+probably gave up on this prematurely because of the low public LB score.
 
 .. image:: ./resources/mixup-bencrop.png
 .. image:: ./resources/mixup-bencrop-tight.png
@@ -174,6 +182,67 @@ Note that the class counts are the same for each batch. I found this helped trai
 faster, and my models generalised better. It was also a way to create diversity of models trained
 with the same architecture - much like how people use varying image sizes.
 
+Ensemble
+--------
+My final ensemble was as follows:
+
+    1. 3x bencrop models, different seeds, 4x TTA (rot90)
+    2. 3x circlecrop models, different seeds + sampling alpha, 4x TTA (rot90)
+    3. 2x tightcrop models, different seeds + sampling alpha, 4x TTA (rot90)
+    4. 2x mixup models, different seeds + sampling alpha, 4x TTA (rot90)
+    5. 5x EfficientNet B5 with img sizes 224, 232, 240, 248, 256 from `this kernel <https://www.kaggle.com/xwxw2929/starter-kernel-for-0-79>`_.
+
+I took the mean of each ensemble group, and took a weighted average of those means:
+
+.. code:: python
+
+    w_bencrop = 0.8
+    w_karl    = 1.0
+    w_tight   = 0.7
+    w_mixup   = 0.6
+    w_fastai  = 1.4
+
+This led to the final public LB score of 0.809 and private 0.922.
+
+Funnily enough, I made a final submission using the following weights:
+
+.. code:: python
+
+    w_bencrop = 0.9
+    w_karl    = 1.0
+    w_tight   = 0.9
+    w_mixup   = 0.9
+    w_fastai  = 1.1
+
+Which gave a public score of 0.804 but the same private score of 0.922.
+
+Afterthoughts
+-------------
+While I was able to boost my score by ensembling models trained with diverse preprocessing methods,
+I should have explored using different architectures. Some of the other participants achieved great
+results using Inception and SEResNext models (in fact, the 1st place winner used only these models).
+
+Others had success using the larger EfficientNet models, and larger image sizes. I think training
+using fp16 will be increasingly popular because of the ability to use GPU memory more efficiently.
+
+Interestingly, many of the top performers did minimal preprocessing. The winning solution only
+used resizing to 512x512 (quite a large image size).
+
+Apparently others found pseudo-labelling to be highly effective for this competition. I hadn't
+heard of it before reading about it in their post-competition reports - I'll have to give this a
+try in future.
+
+Other Competition Reports
+-------------------------
+
+- `1st Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108065#latest-622013>`_
+- `4th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107926#latest-622135>`_
+- `7th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107987#latest-622061>`_
+- `8th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107960#latest-621952>`_
+- `10th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108058#latest-622068>`_
+- `11th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108030#latest-622046>`_
+- `12th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990#latest-621895>`_
+- `15th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107995#latest-621943>`_
 
 User Guide
 ==========
