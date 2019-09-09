@@ -247,6 +247,7 @@ Gold Medal Reports
 `10th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108058#latest-622068>`_ |
 `11th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108030#latest-622046>`_ |
 `12th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990#latest-621895>`_ |
+`14th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107958#latest-622204>`_ |
 `15th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107995#latest-621943>`_
 
 User Guide
@@ -391,6 +392,6 @@ All runs are logged to the ``saved/`` folder by default. You can launch tensorbo
     $ tensorboard --logdir saved/
 
 Cookiecutter Template
----------------------
-This project was generated using my
+=====================
+This project was generated using
 `PyTorch Cookiecutter Template <https://github.com/khornlund/cookiecutter-pytorch>`_.
