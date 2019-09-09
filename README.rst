@@ -325,40 +325,40 @@ Setup
 
 1. Create Anaconda environment:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        $ conda env create --file environment.yml
-        $ conda activate aptos
+      $ conda env create --file environment.yml
+      $ conda activate aptos
 
 2. Download the data (you will need `Kaggle API <https://github.com/Kaggle/kaggle-api>`_ set up)
 
-    Official competition data:
+   Official competition data:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        $ mkdir data/raw
-        $ cd data/raw
-        $ kaggle competitions download -c aptos2019-blindness-detection
-        $ unzip train_images.zip train_images/
+      $ mkdir data/raw
+      $ cd data/raw
+      $ kaggle competitions download -c aptos2019-blindness-detection
+      $ unzip train_images.zip train_images/
 
-    2015 training data:
+   2015 training data:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        $ mkdir diabetic-retinopathy-detection
-        $ cd diabetic-retinopathy-detection
-        $ kaggle datasets download -d tanlikesmath/diabetic-retinopathy-resized
-        $ unzip resized_train_cropped.zip resized_train_cropped/
+      $ mkdir diabetic-retinopathy-detection
+      $ cd diabetic-retinopathy-detection
+      $ kaggle datasets download -d tanlikesmath/diabetic-retinopathy-resized
+      $ unzip resized_train_cropped.zip resized_train_cropped/
 
-    2015 test data:
+   2015 test data:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        $ kaggle datasets download -d benjaminwarner/resized-2015-2019-blindness-detection-images -f "resized test 15.zip"
-        $ kaggle datasets download -d benjaminwarner/resized-2015-2019-blindness-detection-images -f "labels.zip"
-        $ unzip "resized test 15.zip" resized_test/
-        $ unzip labels.zip
-        $ cp labels/testLabels15.csv testLabels.csv
+      $ kaggle datasets download -d benjaminwarner/resized-2015-2019-blindness-detection-images -f "resized test 15.zip"
+      $ kaggle datasets download -d benjaminwarner/resized-2015-2019-blindness-detection-images -f "labels.zip"
+      $ unzip "resized test 15.zip" resized_test/
+      $ unzip labels.zip
+      $ cp labels/testLabels15.csv testLabels.csv
 
 3. Preprocess the data. See ``notebooks/preprocess.ipynb``
    and ``notebooks/preprocess-diabetic-retinopathy.ipynb``
@@ -370,15 +370,15 @@ Training
 
 2. Start training using your config:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        $ aptos train -c experiments/config.yml
+      $ aptos train -c experiments/config.yml
 
 3. Fine-tune as necessary:
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-        $ aptos train -c experiments/config.yml -r path/to/your/model.pt
+      $ aptos train -c experiments/config.yml -r path/to/your/model.pt
 
 Tensorboard Visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~
