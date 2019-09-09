@@ -18,6 +18,8 @@ Results
 -------
 89th/2987 | Top 3% | Silver Medal
 
+# TODO: public v private LB scores
+
 Overview
 --------
 
@@ -226,23 +228,26 @@ Others had success using the larger EfficientNet models, and larger image sizes.
 using fp16 will be increasingly popular because of the huge GPU memory efficiency gains.
 
 Interestingly, many of the top performers did minimal preprocessing. The winning solution only
-used resizing to 512x512 (quite a large image size).
+resized the images to 512x512.
 
 Apparently others found pseudo-labelling to be highly effective for this competition. I hadn't
 heard of it before reading about it in their post-competition reports - I'll have to give this a
 try in future.
 
+I had the idea to combine regression and categorical loss functions, but didn't end up implementing
+it. Now with the knowledge of how others did it, I think I would try that in the future.
+
 Gold Medal Reports
 ------------------
 
-`1st Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108065#latest-622013>`_ |
-`4th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107926#latest-622135>`_ |
-`7th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107987#latest-622061>`_ |
-`8th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107960#latest-621952>`_ |
-`10th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108058#latest-622068>`_ |
-`11th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108030#latest-622046>`_ |
-`12th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990#latest-621895>`_ |
-`15th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107995#latest-621943>`_
+`1st <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108065#latest-622013>`_ |
+`4th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107926#latest-622135>`_ |
+`7th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107987#latest-622061>`_ |
+`8th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107960#latest-621952>`_ |
+`10th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108058#latest-622068>`_ |
+`11th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108030#latest-622046>`_ |
+`12th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990#latest-621895>`_ |
+`15th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107995#latest-621943>`_
 
 User Guide
 ==========
