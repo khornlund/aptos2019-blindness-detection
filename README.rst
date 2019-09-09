@@ -36,7 +36,10 @@ I tried using `Apex <https://github.com/NVIDIA/apex>`_ to train using half-preci
 problems saving/loading models, and problems installing ``Apex`` in the Kaggle kernels.
 
 I was impressed people were able to use ``b5`` in the kernel with large batch size by using
-FastAI's half precision functionality. In future I'll investigate this more.
+FastAI's half precision functionality.
+
+A lot of the winning submissions either used more powerful models, or much larger image sizes. I
+think I'll have to figure out how to get half-precision working in a kernel for future competitions.
 
 Loss
 ~~~~
@@ -52,6 +55,8 @@ recently.
 `Earth Mover's Distance <https://en.wikipedia.org/wiki/Earth_mover%27s_distance>`_. I couldn't find
 a good implementation of it so I wrote my own. It seemed to work - but didn't perform better than
 ``MSE``.
+
+Some competitors had success with ordinal classification, or using a mixed loss function.
 
 Optimizer
 ~~~~~~~~~
@@ -77,19 +82,49 @@ Preprocessing & Augmentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 I used a variety of preprocessing and augmentation techniques, outlined below.
 
+Image Size
+**********
 While I experimented a little with image size, almost all models I trained used ``256x256`` images.
+
+Many of the best submissions used a variety of image sizes, and often much larger images. I should
+do this in future competitions.
 
 Ben's Cropping
 **************
 I started out by using a technique similar to the
 `winner of the 2015 competition <https://www.kaggle.com/c/diabetic-retinopathy-detection/discussion/15801#latest-370950>`_.
 
-<insert image>
+Early on in the competition I got to rank 8 with this model (Public 0.781, Private 0.902).
 
+.. image:: ./resources/bencrop.png
+
+Circle Crop
+***********
+I tried a simple circle crop, which led to my best performing single model
+(Public 0.791, Private 0.913).
+
+.. image:: ./resources/circlecrop.png
+
+Tight Crop
+**********
+The test set images looked quite different from the training set, so I tried a *tight* cropping
+method to try to make the training examples more similar to the test set.
+
+.. image:: ./resources/tightcrop.png
 
 Mixup
 *****
-I thought Mixup might help smooth the discrete labels, and help with the regression approach.
+I implemented mixup hoping to smooth out the distribution of regression targets. When an image was
+selected by the sampler I would mix it with a random image from a neighbouring class, choosing a
+blend parameter from a Beta distribution (0.4, 0.4).
+
+I tried this with some different preprocessing techniques as shown below, but found it yielded
+poor results (Public 0.760, Private 0.908). Other contestants who tried mixup also reported poor
+results.
+
+.. image:: ./resources/mixup-bencrop.png
+.. image:: ./resources/mixup-bencrop-tight.png
+.. image:: ./resources/mixup-tight.png
 
 Sampling Strategy
 ~~~~~~~~~~~~~~~~~
