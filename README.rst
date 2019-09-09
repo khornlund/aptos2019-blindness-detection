@@ -83,16 +83,16 @@ Data
 ----
 I pretrained on the train + test data from 2015, before fine-tuning on the 2019 training set.
 
-Preprocessing & Augmentation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-I used a variety of preprocessing and augmentation techniques, outlined below.
-
 Image Size
-**********
+~~~~~~~~~~
 While I experimented a little with image size, almost all models I trained used ``256x256`` images.
 
 Many of the best submissions used a variety of image sizes, and often much larger images. I should
 do this in future competitions.
+
+Preprocessing & Augmentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I used a variety of preprocessing and augmentation techniques, outlined below.
 
 Ben's Cropping
 **************
@@ -186,11 +186,11 @@ Ensemble
 --------
 My final ensemble was as follows:
 
-    1. 3x bencrop models, different seeds, 4x TTA (rot90)
-    2. 3x circlecrop models, different seeds + sampling alpha, 4x TTA (rot90)
-    3. 2x tightcrop models, different seeds + sampling alpha, 4x TTA (rot90)
-    4. 2x mixup models, different seeds + sampling alpha, 4x TTA (rot90)
-    5. 5x EfficientNet B5 with img sizes 224, 232, 240, 248, 256 from `this kernel <https://www.kaggle.com/xwxw2929/starter-kernel-for-0-79>`_.
+1. 3x bencrop models, different seeds, 4x TTA (rot90)
+2. 3x circlecrop models, different seeds + sampling alpha, 4x TTA (rot90)
+3. 2x tightcrop models, different seeds + sampling alpha, 4x TTA (rot90)
+4. 2x mixup models, different seeds + sampling alpha, 4x TTA (rot90)
+5. 5x EfficientNet B5 with img sizes 224, 232, 240, 248, 256 from `this kernel <https://www.kaggle.com/xwxw2929/starter-kernel-for-0-79>`_.
 
 I took the mean of each ensemble group, and took a weighted average of those means:
 
@@ -223,7 +223,7 @@ I should have explored using different architectures. Some of the other particip
 results using Inception and SEResNext models (in fact, the 1st place winner used only these models).
 
 Others had success using the larger EfficientNet models, and larger image sizes. I think training
-using fp16 will be increasingly popular because of the ability to use GPU memory more efficiently.
+using fp16 will be increasingly popular because of the huge GPU memory efficiency gains.
 
 Interestingly, many of the top performers did minimal preprocessing. The winning solution only
 used resizing to 512x512 (quite a large image size).
@@ -232,17 +232,17 @@ Apparently others found pseudo-labelling to be highly effective for this competi
 heard of it before reading about it in their post-competition reports - I'll have to give this a
 try in future.
 
-Other Competition Reports
--------------------------
+Gold Medal Reports
+------------------
 
-- `1st Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108065#latest-622013>`_
-- `4th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107926#latest-622135>`_
-- `7th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107987#latest-622061>`_
-- `8th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107960#latest-621952>`_
-- `10th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108058#latest-622068>`_
-- `11th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108030#latest-622046>`_
-- `12th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990#latest-621895>`_
-- `15th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107995#latest-621943>`_
+`1st Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108065#latest-622013>`_ |
+`4th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107926#latest-622135>`_ |
+`7th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107987#latest-622061>`_ |
+`8th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107960#latest-621952>`_ |
+`10th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108058#latest-622068>`_ |
+`11th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108030#latest-622046>`_ |
+`12th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990#latest-621895>`_ |
+`15th Place <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107995#latest-621943>`_
 
 User Guide
 ==========
