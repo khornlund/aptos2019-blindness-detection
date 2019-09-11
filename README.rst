@@ -244,7 +244,7 @@ Gold Medal Solutions
 `5th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107960>`_ |
 `7th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108058>`_ |
 `8th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108030>`_ |
-`9th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990>`_ |
+`9th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107990>`_ and
 `9th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/108072>`_ |
 `10th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107944>`_ |
 `11th <https://www.kaggle.com/c/aptos2019-blindness-detection/discussion/107958>`_ |
