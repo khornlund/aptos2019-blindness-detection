@@ -18,8 +18,6 @@ Results
 -------
 83rd/2987 | Top 3% | Silver Medal
 
-# TODO: public v private LB scores
-
 Overview
 --------
 
